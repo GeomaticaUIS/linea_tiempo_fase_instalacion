@@ -1,0 +1,43 @@
+name: Actualizar tablero FONTUR
+
+# Se dispara cuando subes un .xlsx nuevo o tocas el script en esa carpeta.
+# También lo puedes correr manualmente desde la pestaña "Actions" de GitHub.
+on:
+  push:
+    paths:
+      - 'linea_tiempo_fase_instalacion/*.xlsx'
+      - 'linea_tiempo_fase_instalacion/tablero_fontur.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install openpyxl
+
+      - name: Generar HTML desde el Excel
+        run: |
+          cd elementos_Geo/linea_tiempo_fase_instalacion
+          EXCEL=$(ls *.xlsx | head -n 1)
+          echo "Usando Excel: $EXCEL"
+          python tablero_fontur.py "$EXCEL" tablero_soportes_documentales.html
+
+      - name: Subir el HTML actualizado al repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add elementos_Geo/linea_tiempo_fase_instalacion/tablero_soportes_documentales.html
+          git diff --cached --quiet || git commit -m "Actualizar tablero desde Excel [skip ci]"
+          git push
