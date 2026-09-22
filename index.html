@@ -278,7 +278,7 @@ footer.note {
     <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
  
-  <footer class="note">Generado automáticamente desde el Excel maestro con generar_tablero_fontur.py · 2026-09-22 21:19</footer>
+  <footer class="note">Generado automáticamente desde el Excel maestro con generar_tablero_fontur.py · 2026-09-22 21:29</footer>
 </div>
  
 <script>
@@ -317,7 +317,7 @@ function renderRuta(r) {
   if (r.estado === 'pendiente') return '<span class="dash">—</span>';
   // permite que el navegador corte la ruta después de cada backslash,
   // en vez de partir palabras a la mitad
-  return escapeHtml(r.ruta || '').split('\').join('\<wbr>');
+  return escapeHtml(r.ruta || '').split('\\').join('\\<wbr>');
 }
  
 function renderArchivo(r) {
