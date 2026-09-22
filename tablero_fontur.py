@@ -131,7 +131,7 @@ def cargar_registros(ruta_excel):
 # HTML
 # ---------------------------------------------------------------------------
  
-PLANTILLA_HTML = """<!DOCTYPE html>
+PLANTILLA_HTML = r"""<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -567,3 +567,4 @@ def main():
  
 if __name__ == "__main__":
     main()
+ 
