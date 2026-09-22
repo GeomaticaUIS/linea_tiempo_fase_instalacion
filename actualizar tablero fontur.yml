@@ -29,7 +29,6 @@ jobs:
 
       - name: Generar HTML desde el Excel
         run: |
-          cd elementos_Geo/linea_tiempo_fase_instalacion
           EXCEL=$(ls *.xlsx | head -n 1)
           echo "Usando Excel: $EXCEL"
           python tablero_fontur.py "$EXCEL" tablero_soportes_documentales.html
@@ -38,6 +37,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add elementos_Geo/linea_tiempo_fase_instalacion/tablero_soportes_documentales.html
+          git add tablero_soportes_documentales.html
           git diff --cached --quiet || git commit -m "Actualizar tablero desde Excel [skip ci]"
           git push
