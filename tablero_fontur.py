@@ -33,14 +33,15 @@ import openpyxl
 EXCEL_POR_DEFECTO = r"C:\Users\carlos.garcia\Desktop\github\linea_tiempo_fase_instalacion\Tablero_control_General_Instalación_180926.xlsx"
 HTML_POR_DEFECTO = r"C:\Users\carlos.garcia\Desktop\github\linea_tiempo_fase_instalacion\index.html"
 
+ 
 HOJA = "Línea de Tiempo"
 FILA_ENCABEZADOS = 10
 PRIMERA_FILA_DATOS = 11
-
+ 
 COL_CODIGO = 2  # CÓDIGO DIPOLA MUNICIPIO
 COL_MUNICIPIO = 6
 COL_DEPARTAMENTO = 7
-
+ 
 # Columna (índice openpyxl, 1-based) -> etiqueta legible.
 # Los 16 tipos de soporte documental pedidos (se excluye a propósito la
 # columna AF "RUTA SOPORTE REGISTRO FOTOGRÁFICO OBRA CIVIL2", que no forma
@@ -63,28 +64,28 @@ COLUMNAS_SOPORTES = [
     (31, "Entrega EMB"),
     (33, "Recepción EMB Cotecmar"),
 ]
-
+ 
 MARCADOR_ARCHIVO = re.compile(r"NOMBRE\s*ARCHIVO\s*:", re.IGNORECASE)
-
-
+ 
+ 
 # ---------------------------------------------------------------------------
 # Parseo
 # ---------------------------------------------------------------------------
-
+ 
 def parsear_celda(valor):
     """Convierte el contenido crudo de una celda RUTA SOPORTE DOCUMENTAL en
     {estado, ruta, archivos}.
-
+ 
     estado es uno de: 'no_requiere', 'pendiente', 'con_soporte'.
     """
     if valor is None or str(valor).strip() == "":
         return {"estado": "pendiente", "ruta": "", "archivos": []}
-
+ 
     texto = str(valor).strip()
-
+ 
     if texto.upper() == "NO REQUIERE":
         return {"estado": "no_requiere", "ruta": "", "archivos": []}
-
+ 
     partes = MARCADOR_ARCHIVO.split(texto, maxsplit=1)
     ruta = partes[0].strip()
     archivos = []
@@ -93,16 +94,16 @@ def parsear_celda(valor):
             linea = linea.strip()
             if linea:
                 archivos.append(linea)
-
+ 
     return {"estado": "con_soporte", "ruta": ruta, "archivos": archivos}
-
-
+ 
+ 
 def cargar_registros(ruta_excel):
     wb = openpyxl.load_workbook(ruta_excel, data_only=True)
     if HOJA not in wb.sheetnames:
         sys.exit(f"No encontré la hoja '{HOJA}' en {ruta_excel}. Hojas disponibles: {wb.sheetnames}")
     ws = wb[HOJA]
-
+ 
     registros = []
     for fila in range(PRIMERA_FILA_DATOS, ws.max_row + 1):
         municipio = ws.cell(row=fila, column=COL_MUNICIPIO).value
@@ -111,7 +112,7 @@ def cargar_registros(ruta_excel):
         municipio = str(municipio).strip()
         departamento = str(ws.cell(row=fila, column=COL_DEPARTAMENTO).value or "").strip()
         codigo = ws.cell(row=fila, column=COL_CODIGO).value
-
+ 
         for col_idx, etiqueta in COLUMNAS_SOPORTES:
             valor = ws.cell(row=fila, column=col_idx).value
             parseado = parsear_celda(valor)
@@ -122,14 +123,14 @@ def cargar_registros(ruta_excel):
                 "tipo": etiqueta,
                 **parseado,
             })
-
+ 
     return registros
-
-
+ 
+ 
 # ---------------------------------------------------------------------------
 # HTML
 # ---------------------------------------------------------------------------
-
+ 
 PLANTILLA_HTML = """<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -296,7 +297,8 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
 table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 860px;
+  min-width: 680px;
+  table-layout: fixed;
 }
 thead th {
   text-align: left;
@@ -310,6 +312,9 @@ thead th {
   background: var(--bg-panel);
   white-space: nowrap;
 }
+th.col-tipo, td.col-tipo { width: 24%; }
+th.col-ruta, td.col-ruta { width: 42%; }
+th.col-archivo, td.col-archivo { width: 34%; }
 tbody td {
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
@@ -317,11 +322,17 @@ tbody td {
 }
 tbody tr:nth-child(even) { background: var(--bg-row-alt); }
 tbody tr:hover { background: var(--accent-soft); }
-td.col-municipio { font-weight: 500; white-space: nowrap; }
-td.col-departamento { color: var(--ink-soft); white-space: nowrap; }
-td.col-tipo { min-width: 210px; }
-td.col-ruta { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; color: var(--ink-soft); min-width: 340px; word-break: break-all; }
-td.col-archivo { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; min-width: 240px; word-break: break-word; }
+tr.group-row td {
+  background: var(--accent-soft);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+}
+tr.group-row:hover td { background: var(--accent-soft); }
+.group-municipio { font-weight: 600; color: var(--accent-ink); }
+.group-departamento { color: var(--ink-soft); font-size: 13px; margin-left: 8px; }
+td.col-tipo { color: var(--ink); }
+td.col-ruta { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; color: var(--ink-soft); overflow-wrap: break-word; }
+td.col-archivo { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; overflow-wrap: break-word; }
 td.col-archivo ul { margin: 0; padding-left: 16px; }
 td.col-archivo li { margin: 2px 0; }
 .tag-noreq {
@@ -358,7 +369,7 @@ footer.note {
     <h1>Tablero de soportes documentales</h1>
     <p class="subtitle">Ruta y nombre del archivo de cada soporte documental por municipio, tomado de la hoja “Línea de Tiempo” del tablero de control.</p>
   </header>
-
+ 
   <div class="panel filters">
     <div class="field">
       <label for="f-municipio">Municipio</label>
@@ -380,34 +391,32 @@ footer.note {
       <button class="reset" id="btn-reset" type="button">Limpiar filtros</button>
     </div>
   </div>
-
+ 
   <div class="meta-row">
     <span id="conteo">—</span>
     <span id="pendientes-nota"></span>
   </div>
-
+ 
   <div class="table-scroll">
     <table>
       <thead>
         <tr>
-          <th>Municipio</th>
-          <th>Departamento</th>
-          <th>Tipo de documento</th>
-          <th>Ruta</th>
-          <th>Archivo(s)</th>
+          <th class="col-tipo">Tipo de documento</th>
+          <th class="col-ruta">Ruta</th>
+          <th class="col-archivo">Archivo(s)</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
     <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
-
+ 
   <footer class="note">Generado automáticamente desde el Excel maestro con generar_tablero_fontur.py · __FECHA_GENERACION__</footer>
 </div>
-
+ 
 <script>
 const DATA = __DATA_JSON__;
-
+ 
 const elMunicipio = document.getElementById('f-municipio');
 const elDepartamento = document.getElementById('f-departamento');
 const elBuscar = document.getElementById('f-buscar');
@@ -415,11 +424,11 @@ const elTbody = document.getElementById('tbody');
 const elConteo = document.getElementById('conteo');
 const elPendientes = document.getElementById('pendientes-nota');
 const elEmpty = document.getElementById('empty-state');
-
+ 
 function unico(campo) {
   return [...new Set(DATA.map(r => r[campo]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
 }
-
+ 
 function poblarSelect(el, valores) {
   for (const v of valores) {
     const opt = document.createElement('option');
@@ -428,32 +437,34 @@ function poblarSelect(el, valores) {
     el.appendChild(opt);
   }
 }
-
+ 
 poblarSelect(elMunicipio, unico('municipio'));
 poblarSelect(elDepartamento, unico('departamento'));
-
+ 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
+ 
 function renderRuta(r) {
   if (r.estado === 'no_requiere') return '<span class="tag-noreq">No requiere</span>';
   if (r.estado === 'pendiente') return '<span class="dash">—</span>';
-  return escapeHtml(r.ruta || '');
+  // permite que el navegador corte la ruta después de cada backslash,
+  // en vez de partir palabras a la mitad
+  return escapeHtml(r.ruta || '').split('\\').join('\\<wbr>');
 }
-
+ 
 function renderArchivo(r) {
   if (r.estado === 'no_requiere' || r.estado === 'pendiente') return '<span class="dash">—</span>';
   if (!r.archivos || r.archivos.length === 0) return '<span class="dash">—</span>';
   if (r.archivos.length === 1) return escapeHtml(r.archivos[0]);
   return '<ul>' + r.archivos.map(a => '<li>' + escapeHtml(a) + '</li>').join('') + '</ul>';
 }
-
+ 
 function aplicarFiltros() {
   const municipio = elMunicipio.value;
   const departamento = elDepartamento.value;
   const texto = elBuscar.value.trim().toLowerCase();
-
+ 
   const filtradas = DATA.filter(r => {
     if (municipio && r.municipio !== municipio) return false;
     if (departamento && r.departamento !== departamento) return false;
@@ -463,24 +474,37 @@ function aplicarFiltros() {
     }
     return true;
   });
-
-  elTbody.innerHTML = filtradas.map(r => `
-    <tr>
-      <td class="col-municipio">${escapeHtml(r.municipio)}</td>
-      <td class="col-departamento">${escapeHtml(r.departamento)}</td>
-      <td class="col-tipo">${escapeHtml(r.tipo)}</td>
-      <td class="col-ruta">${renderRuta(r)}</td>
-      <td class="col-archivo">${renderArchivo(r)}</td>
-    </tr>
-  `).join('');
-
+ 
+  let filas = '';
+  let grupoActual = null;
+  for (const r of filtradas) {
+    const clave = r.municipio + '||' + r.departamento;
+    if (clave !== grupoActual) {
+      grupoActual = clave;
+      filas += `
+        <tr class="group-row">
+          <td colspan="3">
+            <span class="group-municipio">${escapeHtml(r.municipio)}</span>
+            <span class="group-departamento">${escapeHtml(r.departamento)}</span>
+          </td>
+        </tr>`;
+    }
+    filas += `
+      <tr>
+        <td class="col-tipo">${escapeHtml(r.tipo)}</td>
+        <td class="col-ruta">${renderRuta(r)}</td>
+        <td class="col-archivo">${renderArchivo(r)}</td>
+      </tr>`;
+  }
+  elTbody.innerHTML = filas;
+ 
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
-
+ 
   const pendientes = filtradas.filter(r => r.estado === 'pendiente').length;
   elConteo.innerHTML = `Mostrando <strong>${filtradas.length}</strong> de ${DATA.length} filas`;
   elPendientes.textContent = filtradas.length ? `${pendientes} pendientes sin soporte cargado` : '';
 }
-
+ 
 // Si se elige un departamento, restringe la lista de municipios a ese departamento
 elDepartamento.addEventListener('change', () => {
   const dep = elDepartamento.value;
@@ -491,7 +515,7 @@ elDepartamento.addEventListener('change', () => {
   if (municipios.includes(actual)) elMunicipio.value = actual;
   aplicarFiltros();
 });
-
+ 
 elMunicipio.addEventListener('change', aplicarFiltros);
 elBuscar.addEventListener('input', aplicarFiltros);
 document.getElementById('btn-reset').addEventListener('click', () => {
@@ -502,44 +526,44 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   poblarSelect(elMunicipio, unico('municipio'));
   aplicarFiltros();
 });
-
+ 
 aplicarFiltros();
 </script>
 </body>
 </html>
 """
-
-
+ 
+ 
 def construir_html(registros, ruta_salida):
     from datetime import datetime
     data_json = json.dumps(registros, ensure_ascii=False).replace("</script", "<\\/script")
     html = PLANTILLA_HTML.replace("__DATA_JSON__", data_json)
     html = html.replace("__FECHA_GENERACION__", datetime.now().strftime("%Y-%m-%d %H:%M"))
     Path(ruta_salida).write_text(html, encoding="utf-8")
-
-
+ 
+ 
 def main():
     ruta_excel = sys.argv[1] if len(sys.argv) > 1 else EXCEL_POR_DEFECTO
     ruta_salida = sys.argv[2] if len(sys.argv) > 2 else HTML_POR_DEFECTO
-
+ 
     if not Path(ruta_excel).exists():
         sys.exit(f"No encontré el archivo: {ruta_excel}")
-
+ 
     registros = cargar_registros(ruta_excel)
     construir_html(registros, ruta_salida)
-
+ 
     con_soporte = sum(1 for r in registros if r["estado"] == "con_soporte")
     no_requiere = sum(1 for r in registros if r["estado"] == "no_requiere")
     pendientes = sum(1 for r in registros if r["estado"] == "pendiente")
     municipios = len(set(r["municipio"] for r in registros))
-
+ 
     print(f"Municipios procesados: {municipios}")
     print(f"Filas generadas: {len(registros)}")
     print(f"  con soporte cargado: {con_soporte}")
     print(f"  no requiere:         {no_requiere}")
     print(f"  pendientes:          {pendientes}")
     print(f"HTML generado en: {ruta_salida}")
-
-
+ 
+ 
 if __name__ == "__main__":
     main()
