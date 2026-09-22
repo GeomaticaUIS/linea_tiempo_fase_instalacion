@@ -5,8 +5,8 @@ name: Actualizar tablero FONTUR
 on:
   push:
     paths:
-      - 'linea_tiempo_fase_instalacion/*.xlsx'
-      - 'linea_tiempo_fase_instalacion/tablero_fontur.py'
+      - '*.xlsx'
+      - 'tablero_fontur.py'
   workflow_dispatch:
 
 permissions:
