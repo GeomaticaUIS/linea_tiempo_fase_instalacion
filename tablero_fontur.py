@@ -328,6 +328,7 @@ tr.group-row td {
   border-bottom: 1px solid var(--line);
 }
 tr.group-row:hover td { background: var(--accent-soft); }
+.group-codigo { font-weight: 600; color: var(--accent); }
 .group-municipio { font-weight: 600; color: var(--accent-ink); }
 .group-departamento { color: var(--ink-soft); font-size: 13px; margin-left: 8px; }
 td.col-tipo { color: var(--ink); }
@@ -485,6 +486,7 @@ function aplicarFiltros() {
       filas += `
         <tr class="group-row">
           <td colspan="3">
+            <span class="group-codigo">${escapeHtml(r.codigo)}</span>
             <span class="group-municipio">${escapeHtml(r.municipio)}</span>
             <span class="group-departamento">${escapeHtml(r.departamento)}</span>
           </td>

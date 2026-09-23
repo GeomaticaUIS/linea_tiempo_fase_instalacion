@@ -195,6 +195,7 @@ tr.group-row td {
   border-bottom: 1px solid var(--line);
 }
 tr.group-row:hover td { background: var(--accent-soft); }
+.group-codigo { font-weight: 600; color: var(--accent); }
 .group-municipio { font-weight: 600; color: var(--accent-ink); }
 .group-departamento { color: var(--ink-soft); font-size: 13px; margin-left: 8px; }
 td.col-tipo { color: var(--ink); }
@@ -234,7 +235,8 @@ footer.note {
   <header class="page-head">
     <p class="eyebrow">PROYECTO FONTUR · Instalación de embarcaderos</p>
     <h1>Tablero de soportes documentales fase instalación</h1>
-    <!-- <p class="subtitle">Ruta y nombre del archivo de cada soporte documental por municipio, tomado de la hoja “Línea de Tiempo” del tablero de control.</p>-->
+    <p class="subtitle">Puede encontrar los siguientes documentos:</p>
+    <p class="subtitle">Bitácoras, Pólizas, Cronogramas, Actas, Permisos</p>
   </header>
  
   <div class="panel filters">
@@ -278,7 +280,11 @@ footer.note {
     <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
  
-  <footer class="note">Generado automáticamente desde el Excel maestro con generar_tablero_fontur.py · 2026-09-23 10:08</footer>
+<<<<<<< Updated upstream
+  <footer class="note">Generado automáticamente el· 2026-09-23 16:08</footer>
+=======
+  <footer class="note">Generado automáticamente el· 2026-09-23 11:31</footer>
+>>>>>>> Stashed changes
 </div>
  
 <script>
@@ -351,6 +357,7 @@ function aplicarFiltros() {
       filas += `
         <tr class="group-row">
           <td colspan="3">
+            <span class="group-codigo">${escapeHtml(r.codigo)}</span>
             <span class="group-municipio">${escapeHtml(r.municipio)}</span>
             <span class="group-departamento">${escapeHtml(r.departamento)}</span>
           </td>
