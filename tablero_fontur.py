@@ -41,6 +41,7 @@ PRIMERA_FILA_DATOS = 11
 COL_CODIGO = 2  # CÓDIGO DIPOLA MUNICIPIO
 COL_MUNICIPIO = 6
 COL_DEPARTAMENTO = 7
+COL_FECHA_CAPACITACION_ENTREGA_EMB = 16
  
 # Columna (índice openpyxl, 1-based) -> etiqueta legible.
 # Los 16 tipos de soporte documental pedidos (se excluye a propósito la
@@ -71,7 +72,17 @@ MARCADOR_ARCHIVO = re.compile(r"NOMBRE\s*ARCHIVO\s*:", re.IGNORECASE)
 # ---------------------------------------------------------------------------
 # Parseo
 # ---------------------------------------------------------------------------
- 
+
+def embarcadero_instalado(valor):
+    """Devuelve True si la fecha de la columna FECHA CAPACITACIÓN Y ENTREGA EMB
+    indica que ese embarcadero ya fue instalado."""
+    if valor is None:
+        return False
+    if isinstance(valor, str):
+        return valor.strip() != ""
+    return True
+
+
 def parsear_celda(valor):
     """Convierte el contenido crudo de una celda RUTA SOPORTE DOCUMENTAL en
     {estado, ruta, archivos}.
@@ -112,7 +123,9 @@ def cargar_registros(ruta_excel):
         municipio = str(municipio).strip()
         departamento = str(ws.cell(row=fila, column=COL_DEPARTAMENTO).value or "").strip()
         codigo = ws.cell(row=fila, column=COL_CODIGO).value
- 
+        fecha_entrega = ws.cell(row=fila, column=COL_FECHA_CAPACITACION_ENTREGA_EMB).value
+        instalado = embarcadero_instalado(fecha_entrega)
+
         for col_idx, etiqueta in COLUMNAS_SOPORTES:
             valor = ws.cell(row=fila, column=col_idx).value
             parseado = parsear_celda(valor)
@@ -121,6 +134,7 @@ def cargar_registros(ruta_excel):
                 "departamento": departamento,
                 "codigo": str(codigo) if codigo is not None else "",
                 "tipo": etiqueta,
+                "instalado": instalado,
                 **parseado,
             })
  
@@ -368,7 +382,7 @@ footer.note {
   <header class="page-head">
     <p class="eyebrow">PROYECTO FONTUR · Instalación de embarcaderos</p>
     <h1>Tablero de soportes documentales fase instalación</h1>
-    <p class="subtitle">Puede encontrar los siguientes documentos:</p>
+    <p class="subtitle">Puede filtrar los siguientes documentos:</p>
     <p class="subtitle">Bitácoras, Pólizas, Cronogramas, Actas, Permisos</p>
   </header>
  
@@ -383,6 +397,14 @@ footer.note {
       <label for="f-departamento">Departamento</label>
       <select id="f-departamento">
         <option value="">Todos los departamentos</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="f-instalado">Estado de instalación</label>
+      <select id="f-instalado">
+        <option value="">Todos</option>
+        <option value="instalado">Instalado</option>
+        <option value="no_instalado">No instalado</option>
       </select>
     </div>
     <div class="field">
@@ -421,6 +443,7 @@ const DATA = __DATA_JSON__;
  
 const elMunicipio = document.getElementById('f-municipio');
 const elDepartamento = document.getElementById('f-departamento');
+const elInstalado = document.getElementById('f-instalado');
 const elBuscar = document.getElementById('f-buscar');
 const elTbody = document.getElementById('tbody');
 const elConteo = document.getElementById('conteo');
@@ -465,17 +488,35 @@ function renderArchivo(r) {
 function aplicarFiltros() {
   const municipio = elMunicipio.value;
   const departamento = elDepartamento.value;
+  const estadoInstalacion = elInstalado.value;
   const texto = elBuscar.value.trim().toLowerCase();
  
   const filtradas = DATA.filter(r => {
     if (municipio && r.municipio !== municipio) return false;
     if (departamento && r.departamento !== departamento) return false;
+    if (estadoInstalacion === 'instalado' && !r.instalado) return false;
+    if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     if (texto) {
       const hay = (r.tipo + ' ' + r.ruta + ' ' + (r.archivos || []).join(' ')).toLowerCase();
       if (!hay.includes(texto)) return false;
     }
     return true;
   });
+
+  const claveMunicipio = r => `${r.municipio}||${r.departamento}`;
+  const municipiosFiltrados = new Set(filtradas.map(claveMunicipio));
+  const municipiosBase = new Set(DATA.filter(r => {
+    if (municipio && r.municipio !== municipio) return false;
+    if (departamento && r.departamento !== departamento) return false;
+    if (estadoInstalacion === 'instalado' && !r.instalado) return false;
+    if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
+    return true;
+  }).map(claveMunicipio));
+  const pendientes = new Set(
+    filtradas
+      .filter(r => r.estado === 'pendiente')
+      .map(claveMunicipio)
+  ).size;
  
   let filas = '';
   let grupoActual = null;
@@ -503,9 +544,8 @@ function aplicarFiltros() {
  
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
-  const pendientes = filtradas.filter(r => r.estado === 'pendiente').length;
-  elConteo.innerHTML = `Mostrando <strong>${filtradas.length}</strong> de ${DATA.length} filas`;
-  elPendientes.textContent = filtradas.length ? `${pendientes} pendientes sin soporte cargado` : '';
+  elConteo.innerHTML = `Mostrando <strong>${municipiosFiltrados.size}</strong> de ${municipiosBase.size} municipios`;
+  elPendientes.textContent = municipiosFiltrados.size ? `${pendientes} pendientes sin soporte cargado` : '';
 }
  
 // Si se elige un departamento, restringe la lista de municipios a ese departamento
@@ -520,10 +560,12 @@ elDepartamento.addEventListener('change', () => {
 });
  
 elMunicipio.addEventListener('change', aplicarFiltros);
+elInstalado.addEventListener('change', aplicarFiltros);
 elBuscar.addEventListener('input', aplicarFiltros);
 document.getElementById('btn-reset').addEventListener('click', () => {
   elMunicipio.value = '';
   elDepartamento.value = '';
+  elInstalado.value = '';
   elBuscar.value = '';
   elMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
   poblarSelect(elMunicipio, unico('municipio'));
@@ -558,6 +600,7 @@ def main():
     con_soporte = sum(1 for r in registros if r["estado"] == "con_soporte")
     no_requiere = sum(1 for r in registros if r["estado"] == "no_requiere")
     pendientes = sum(1 for r in registros if r["estado"] == "pendiente")
+    pendientes_instalados = sum(1 for r in registros if r["estado"] == "pendiente" and r.get("instalado", False))
     municipios = len(set(r["municipio"] for r in registros))
  
     print(f"Municipios procesados: {municipios}")
@@ -565,6 +608,7 @@ def main():
     print(f"  con soporte cargado: {con_soporte}")
     print(f"  no requiere:         {no_requiere}")
     print(f"  pendientes:          {pendientes}")
+    print(f"  pendientes con EMB instalado: {pendientes_instalados}")
     print(f"HTML generado en: {ruta_salida}")
  
  
