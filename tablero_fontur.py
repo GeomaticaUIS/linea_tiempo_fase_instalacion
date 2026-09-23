@@ -366,8 +366,9 @@ footer.note {
 <div class="wrap">
   <header class="page-head">
     <p class="eyebrow">PROYECTO FONTUR · Instalación de embarcaderos</p>
-    <h1>Tablero de soportes documentales</h1>
-    <p class="subtitle">Ruta y nombre del archivo de cada soporte documental por municipio, tomado de la hoja “Línea de Tiempo” del tablero de control.</p>
+    <h1>Tablero de soportes documentales fase instalación</h1>
+    <p class="subtitle">Puede encontrar los siguientes documentos:</p>
+    <p class="subtitle">Bitácoras, Pólizas, Cronogramas, Actas, Permisos</p>
   </header>
  
   <div class="panel filters">
@@ -402,8 +403,8 @@ footer.note {
       <thead>
         <tr>
           <th class="col-tipo">Tipo de documento</th>
-          <th class="col-ruta">Ruta</th>
           <th class="col-archivo">Archivo(s)</th>
+          <th class="col-ruta">Ruta</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -411,7 +412,7 @@ footer.note {
     <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
  
-  <footer class="note">Generado automáticamente desde el Excel maestro con generar_tablero_fontur.py · __FECHA_GENERACION__</footer>
+  <footer class="note">Generado automáticamente el· __FECHA_GENERACION__</footer>
 </div>
  
 <script>
@@ -492,8 +493,8 @@ function aplicarFiltros() {
     filas += `
       <tr>
         <td class="col-tipo">${escapeHtml(r.tipo)}</td>
-        <td class="col-ruta">${renderRuta(r)}</td>
         <td class="col-archivo">${renderArchivo(r)}</td>
+        <td class="col-ruta">${renderRuta(r)}</td>
       </tr>`;
   }
   elTbody.innerHTML = filas;
