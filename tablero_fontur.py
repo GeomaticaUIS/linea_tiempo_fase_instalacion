@@ -44,7 +44,7 @@ COL_DEPARTAMENTO = 7
 COL_FECHA_CAPACITACION_ENTREGA_EMB = 16
  
 # Columna (índice openpyxl, 1-based) -> etiqueta legible.
-# Los 16 tipos de soporte documental pedidos (se excluye a propósito la
+# Los tipos de soporte documental pedidos (se excluye a propósito la
 # columna AF "RUTA SOPORTE REGISTRO FOTOGRÁFICO OBRA CIVIL2", que no forma
 # parte de la lista original).
 COLUMNAS_SOPORTES = [
@@ -58,7 +58,6 @@ COLUMNAS_SOPORTES = [
     (24, "Autorización Ocupación Espacio Público"),
     (25, "Actas de Vecindad"),
     (26, "Bitácoras"),
-    (27, "Certificaciones Calidad Materiales"),
     (28, "Control Calidad Interventoría"),
     (29, "Seguimiento Armado EMB"),
     (30, "Capacitación EMB"),
@@ -86,17 +85,24 @@ def embarcadero_instalado(valor):
 def parsear_celda(valor):
     """Convierte el contenido crudo de una celda RUTA SOPORTE DOCUMENTAL en
     {estado, ruta, archivos}.
- 
-    estado es uno de: 'no_requiere', 'pendiente', 'con_soporte'.
+
+    La regla del Excel es: si la celda no contiene texto después de
+    'NOMBRE ARCHIVO:', ese documento está pendiente aunque la ruta aparezca
+    indicada. Si la celda está vacía, no se cuenta como pendiente porque no
+    hay evidencia de que el soporte exista ni que falte.
+
+    estado es uno de: 'sin_dato', 'no_requiere', 'pendiente', 'con_soporte'.
     """
     if valor is None or str(valor).strip() == "":
-        return {"estado": "pendiente", "ruta": "", "archivos": []}
- 
+        return {"estado": "sin_dato", "ruta": "", "archivos": []}
+
     texto = str(valor).strip()
- 
+
     if texto.upper() == "NO REQUIERE":
         return {"estado": "no_requiere", "ruta": "", "archivos": []}
- 
+
+    # Si hay algo escrito pero no hay archivo documentado, se entiende
+    # como evidencia de que faltó cargar ese soporte.
     partes = MARCADOR_ARCHIVO.split(texto, maxsplit=1)
     ruta = partes[0].strip()
     archivos = []
@@ -105,7 +111,10 @@ def parsear_celda(valor):
             linea = linea.strip()
             if linea:
                 archivos.append(linea)
- 
+
+    if not archivos:
+        return {"estado": "pendiente", "ruta": ruta, "archivos": []}
+
     return {"estado": "con_soporte", "ruta": ruta, "archivos": archivos}
  
  
@@ -301,6 +310,44 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
   gap: 6px;
 }
 .meta-row strong { color: var(--ink); }
+.pending-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin: 0 0 16px;
+  padding: 14px 16px;
+}
+.pending-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.pending-header small {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.pending-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pending-list li {
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  color: var(--accent-ink);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
 .table-scroll {
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -420,6 +467,14 @@ footer.note {
     <span id="conteo">—</span>
     <span id="pendientes-nota"></span>
   </div>
+
+  <div class="pending-panel" id="panel-pendientes" style="display:none;">
+    <div class="pending-header">
+      <span>Municipios pendientes por soporte</span>
+      <small id="pendientes-listado-count">0</small>
+    </div>
+    <ul class="pending-list" id="listado-pendientes"></ul>
+  </div>
  
   <div class="table-scroll">
     <table>
@@ -448,6 +503,9 @@ const elBuscar = document.getElementById('f-buscar');
 const elTbody = document.getElementById('tbody');
 const elConteo = document.getElementById('conteo');
 const elPendientes = document.getElementById('pendientes-nota');
+const elPanelPendientes = document.getElementById('panel-pendientes');
+const elListadoPendientes = document.getElementById('listado-pendientes');
+const elListadoPendientesCount = document.getElementById('pendientes-listado-count');
 const elEmpty = document.getElementById('empty-state');
  
 function unico(campo) {
@@ -462,25 +520,73 @@ function poblarSelect(el, valores) {
     el.appendChild(opt);
   }
 }
- 
+
+function opcionesSegunFiltros(campo) {
+  const estado = elInstalado.value;
+  const municipioActual = elMunicipio.value;
+  const departamentoActual = elDepartamento.value;
+
+  const filas = DATA.filter(r => {
+    if (estado === 'instalado' && !r.instalado) return false;
+    if (estado === 'no_instalado' && r.instalado) return false;
+    if (municipioActual && r.municipio !== municipioActual) return false;
+    if (departamentoActual && r.departamento !== departamentoActual) return false;
+    return true;
+  });
+
+  return [...new Set(filas.map(r => r[campo]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+}
+
+function syncSelects() {
+  const estado = elInstalado.value;
+  const municipioActual = elMunicipio.value;
+  const departamentoActual = elDepartamento.value;
+
+  const base = DATA.filter(r => {
+    if (estado === 'instalado' && !r.instalado) return false;
+    if (estado === 'no_instalado' && r.instalado) return false;
+    return true;
+  });
+
+  const departamentos = [...new Set(base.filter(r => {
+    if (municipioActual && r.municipio !== municipioActual) return false;
+    return true;
+  }).map(r => r.departamento).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+
+  const municipios = [...new Set(base.filter(r => {
+    if (departamentoActual && r.departamento !== departamentoActual) return false;
+    return true;
+  }).map(r => r.municipio).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+
+  const siguienteDepartamento = departamentoActual && departamentos.includes(departamentoActual) ? departamentoActual : '';
+  const siguienteMunicipio = municipioActual && municipios.includes(municipioActual) ? municipioActual : '';
+
+  elDepartamento.innerHTML = '<option value="">Todos los departamentos</option>';
+  poblarSelect(elDepartamento, departamentos);
+  elDepartamento.value = siguienteDepartamento;
+
+  elMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
+  poblarSelect(elMunicipio, municipios);
+  elMunicipio.value = siguienteMunicipio;
+}
+
 poblarSelect(elMunicipio, unico('municipio'));
 poblarSelect(elDepartamento, unico('departamento'));
- 
+
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
  
 function renderRuta(r) {
-  if (r.estado === 'no_requiere') return '<span class="tag-noreq">No requiere</span>';
+  if (r.estado === 'no_requiere' || r.estado === 'sin_dato') return r.estado === 'no_requiere' ? '<span class="tag-noreq">No requiere</span>' : '<span class="dash">—</span>';
   if (r.estado === 'pendiente') return '<span class="dash">—</span>';
   // permite que el navegador corte la ruta después de cada backslash,
   // en vez de partir palabras a la mitad
   return escapeHtml(r.ruta || '').split('\\').join('\\<wbr>');
 }
- 
+
 function renderArchivo(r) {
-  if (r.estado === 'no_requiere' || r.estado === 'pendiente') return '<span class="dash">—</span>';
-  if (!r.archivos || r.archivos.length === 0) return '<span class="dash">—</span>';
+  if (r.estado === 'no_requiere' || r.estado === 'pendiente' || r.estado === 'sin_dato') return '<span class="dash">—</span>';
   if (r.archivos.length === 1) return escapeHtml(r.archivos[0]);
   return '<ul>' + r.archivos.map(a => '<li>' + escapeHtml(a) + '</li>').join('') + '</ul>';
 }
@@ -512,11 +618,15 @@ function aplicarFiltros() {
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     return true;
   }).map(claveMunicipio));
-  const pendientes = new Set(
+  const pendientes = [...new Set(
     filtradas
       .filter(r => r.estado === 'pendiente')
-      .map(claveMunicipio)
-  ).size;
+      .map(r => `${r.municipio} (${r.departamento})`)
+  )].sort((a, b) => a.localeCompare(b, 'es'));
+
+  elListadoPendientesCount.textContent = pendientes.length;
+  elListadoPendientes.innerHTML = pendientes.map(m => `<li>${escapeHtml(m)}</li>`).join('');
+  elPanelPendientes.style.display = pendientes.length ? 'block' : 'none';
  
   let filas = '';
   let grupoActual = null;
@@ -545,22 +655,23 @@ function aplicarFiltros() {
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
   elConteo.innerHTML = `Mostrando <strong>${municipiosFiltrados.size}</strong> de ${municipiosBase.size} municipios`;
-  elPendientes.textContent = municipiosFiltrados.size ? `${pendientes} pendientes sin soporte cargado` : '';
+  elPendientes.textContent = municipiosFiltrados.size ? `${pendientes.length} pendientes sin soporte cargado` : '';
 }
  
 // Si se elige un departamento, restringe la lista de municipios a ese departamento
 elDepartamento.addEventListener('change', () => {
-  const dep = elDepartamento.value;
-  const actual = elMunicipio.value;
-  elMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
-  const municipios = dep ? unico('municipio').filter(m => DATA.some(r => r.municipio === m && r.departamento === dep)) : unico('municipio');
-  poblarSelect(elMunicipio, municipios);
-  if (municipios.includes(actual)) elMunicipio.value = actual;
+  syncSelects();
   aplicarFiltros();
 });
- 
-elMunicipio.addEventListener('change', aplicarFiltros);
-elInstalado.addEventListener('change', aplicarFiltros);
+
+elMunicipio.addEventListener('change', () => {
+  syncSelects();
+  aplicarFiltros();
+});
+elInstalado.addEventListener('change', () => {
+  syncSelects();
+  aplicarFiltros();
+});
 elBuscar.addEventListener('input', aplicarFiltros);
 document.getElementById('btn-reset').addEventListener('click', () => {
   elMunicipio.value = '';
@@ -568,7 +679,9 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   elInstalado.value = '';
   elBuscar.value = '';
   elMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
+  elDepartamento.innerHTML = '<option value="">Todos los departamentos</option>';
   poblarSelect(elMunicipio, unico('municipio'));
+  poblarSelect(elDepartamento, unico('departamento'));
   aplicarFiltros();
 });
  
@@ -597,6 +710,7 @@ def main():
     registros = cargar_registros(ruta_excel)
     construir_html(registros, ruta_salida)
  
+    sin_dato = sum(1 for r in registros if r["estado"] == "sin_dato")
     con_soporte = sum(1 for r in registros if r["estado"] == "con_soporte")
     no_requiere = sum(1 for r in registros if r["estado"] == "no_requiere")
     pendientes = sum(1 for r in registros if r["estado"] == "pendiente")
@@ -605,6 +719,7 @@ def main():
  
     print(f"Municipios procesados: {municipios}")
     print(f"Filas generadas: {len(registros)}")
+    print(f"  sin dato:            {sin_dato}")
     print(f"  con soporte cargado: {con_soporte}")
     print(f"  no requiere:         {no_requiere}")
     print(f"  pendientes:          {pendientes}")
