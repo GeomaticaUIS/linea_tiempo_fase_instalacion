@@ -389,9 +389,43 @@ tr.group-row td {
   border-bottom: 1px solid var(--line);
 }
 tr.group-row:hover td { background: var(--accent-soft); }
+.group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.group-code-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .group-codigo { font-weight: 600; color: var(--accent); }
 .group-municipio { font-weight: 600; color: var(--accent-ink); }
 .group-departamento { color: var(--ink-soft); font-size: 13px; margin-left: 8px; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  border: 1px solid transparent;
+}
+.badge--ok {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.25);
+  color: #166534;
+}
+.badge--alert {
+  background: rgba(220, 38, 38, 0.10);
+  border-color: rgba(220, 38, 38, 0.22);
+  color: #991b1b;
+}
 td.col-tipo { color: var(--ink); }
 td.col-ruta { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; color: var(--ink-soft); overflow-wrap: break-word; }
 td.col-archivo { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; overflow-wrap: break-word; }
@@ -558,8 +592,15 @@ function syncSelects() {
     return true;
   }).map(r => r.municipio).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
 
-  const siguienteDepartamento = departamentoActual && departamentos.includes(departamentoActual) ? departamentoActual : '';
-  const siguienteMunicipio = municipioActual && municipios.includes(municipioActual) ? municipioActual : '';
+  let siguienteDepartamento = departamentoActual && departamentos.includes(departamentoActual) ? departamentoActual : '';
+  let siguienteMunicipio = municipioActual && municipios.includes(municipioActual) ? municipioActual : '';
+
+  if (!siguienteDepartamento && departamentoActual) {
+    siguienteDepartamento = '';
+  }
+  if (!siguienteMunicipio && municipioActual) {
+    siguienteMunicipio = '';
+  }
 
   elDepartamento.innerHTML = '<option value="">Todos los departamentos</option>';
   poblarSelect(elDepartamento, departamentos);
@@ -589,6 +630,14 @@ function renderArchivo(r) {
   if (r.estado === 'no_requiere' || r.estado === 'pendiente' || r.estado === 'sin_dato') return '<span class="dash">—</span>';
   if (r.archivos.length === 1) return escapeHtml(r.archivos[0]);
   return '<ul>' + r.archivos.map(a => '<li>' + escapeHtml(a) + '</li>').join('') + '</ul>';
+}
+
+function renderBadgeGrupo(rows) {
+  const pendientes = rows.filter(r => r.estado === 'pendiente' || r.estado === 'sin_dato').length;
+  const ok = pendientes === 0;
+  return '<span class="badge ' + (ok ? 'badge--ok' : 'badge--alert') + '">' +
+    (ok ? '✓' : '⚠') + ' ' + pendientes + ' pendiente' + (pendientes === 1 ? '' : 's') +
+    '</span>';
 }
  
 function aplicarFiltros() {
@@ -628,27 +677,39 @@ function aplicarFiltros() {
   elListadoPendientes.innerHTML = pendientes.map(m => `<li>${escapeHtml(m)}</li>`).join('');
   elPanelPendientes.style.display = pendientes.length ? 'block' : 'none';
  
-  let filas = '';
-  let grupoActual = null;
+  const grupos = new Map();
   for (const r of filtradas) {
     const clave = r.municipio + '||' + r.departamento;
-    if (clave !== grupoActual) {
-      grupoActual = clave;
+    if (!grupos.has(clave)) {
+      grupos.set(clave, { codigo: r.codigo, municipio: r.municipio, departamento: r.departamento, rows: [] });
+    }
+    grupos.get(clave).rows.push(r);
+  }
+
+  let filas = '';
+  for (const grupo of grupos.values()) {
+    filas += `
+      <tr class="group-row">
+        <td colspan="3">
+          <div class="group-title">
+            <div class="group-code-name">
+              <span class="group-codigo">${escapeHtml(grupo.codigo)}</span>
+              <span class="group-municipio">${escapeHtml(grupo.municipio)}</span>
+              <span class="group-departamento">${escapeHtml(grupo.departamento)}</span>
+            </div>
+            ${renderBadgeGrupo(grupo.rows)}
+          </div>
+        </td>
+      </tr>`;
+
+    for (const r of grupo.rows) {
       filas += `
-        <tr class="group-row">
-          <td colspan="3">
-            <span class="group-codigo">${escapeHtml(r.codigo)}</span>
-            <span class="group-municipio">${escapeHtml(r.municipio)}</span>
-            <span class="group-departamento">${escapeHtml(r.departamento)}</span>
-          </td>
+        <tr>
+          <td class="col-tipo">${escapeHtml(r.tipo)}</td>
+          <td class="col-archivo">${renderArchivo(r)}</td>
+          <td class="col-ruta">${renderRuta(r)}</td>
         </tr>`;
     }
-    filas += `
-      <tr>
-        <td class="col-tipo">${escapeHtml(r.tipo)}</td>
-        <td class="col-archivo">${renderArchivo(r)}</td>
-        <td class="col-ruta">${renderRuta(r)}</td>
-      </tr>`;
   }
   elTbody.innerHTML = filas;
  
