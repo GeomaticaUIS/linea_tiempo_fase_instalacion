@@ -22,3 +22,10 @@ def test_parsear_celda_con_ruta_y_archivo():
     assert resultado['estado'] == 'con_soporte'
     assert resultado['ruta'].endswith('ruta') or resultado['ruta'] == 'Documentos\\ruta\\archivo.pdf'
     assert resultado['archivos'] == ['archivo.pdf']
+
+
+def test_parsear_celda_con_hyperlink():
+    valor = 'Documentos\\Documentos Tecnicos\\ruta\nNOMBRE ARCHIVO: 01_BTC_PtoWilches_140725'
+    resultado = parsear_celda(valor, href='https://sharepoint.example/bitacora')
+    assert resultado['estado'] == 'con_soporte'
+    assert resultado['href'] == 'https://sharepoint.example/bitacora'

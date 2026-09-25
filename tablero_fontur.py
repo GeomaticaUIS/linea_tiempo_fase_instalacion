@@ -83,9 +83,9 @@ def embarcadero_instalado(valor):
     return True
 
 
-def parsear_celda(valor):
+def parsear_celda(valor, href=None):
     """Convierte el contenido crudo de una celda RUTA SOPORTE DOCUMENTAL en
-    {estado, ruta, archivos}.
+    {estado, ruta, archivos, href}.
 
     La regla del Excel es: si la celda no contiene texto después de
     'NOMBRE ARCHIVO:', ese documento está pendiente aunque la ruta aparezca
@@ -95,12 +95,12 @@ def parsear_celda(valor):
     estado es uno de: 'sin_dato', 'no_requiere', 'pendiente', 'con_soporte'.
     """
     if valor is None or str(valor).strip() == "":
-        return {"estado": "sin_dato", "ruta": "", "archivos": []}
+        return {"estado": "sin_dato", "ruta": "", "archivos": [], "href": href}
 
     texto = str(valor).strip()
 
     if texto.upper().startswith("NO REQUIERE"):
-        return {"estado": "no_requiere", "ruta": "", "archivos": ["NO REQUIERE"]}
+        return {"estado": "no_requiere", "ruta": "", "archivos": ["NO REQUIERE"], "href": href}
 
     # Si hay algo escrito pero no hay archivo documentado, se entiende
     # como evidencia de que faltó cargar ese soporte.
@@ -114,9 +114,9 @@ def parsear_celda(valor):
                 archivos.append(linea)
 
     if not archivos:
-        return {"estado": "pendiente", "ruta": ruta, "archivos": []}
+        return {"estado": "pendiente", "ruta": ruta, "archivos": [], "href": href}
 
-    return {"estado": "con_soporte", "ruta": ruta, "archivos": archivos}
+    return {"estado": "con_soporte", "ruta": ruta, "archivos": archivos, "href": href}
  
  
 def cargar_registros(ruta_excel):
@@ -137,8 +137,10 @@ def cargar_registros(ruta_excel):
         instalado = embarcadero_instalado(fecha_entrega)
 
         for col_idx, etiqueta in COLUMNAS_SOPORTES:
-            valor = ws.cell(row=fila, column=col_idx).value
-            parseado = parsear_celda(valor)
+            celda = ws.cell(row=fila, column=col_idx)
+            valor = celda.value
+            href = celda.hyperlink.target if celda.hyperlink else None
+            parseado = parsear_celda(valor, href=href)
             registros.append({
                 "municipio": municipio,
                 "departamento": departamento,
@@ -342,12 +344,27 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
   gap: 8px;
 }
 .pending-list li {
+  margin: 0;
+}
+.pending-chip {
   background: var(--accent-soft);
   border: 1px solid var(--line);
   color: var(--accent-ink);
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pending-chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.pending-chip.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 0 0 2px rgba(14, 116, 144, 0.15);
 }
 .table-scroll {
   overflow-x: auto;
@@ -416,6 +433,7 @@ tr.group-row:hover td { background: var(--accent-soft); }
   font-weight: 600;
   line-height: 1.2;
   border: 1px solid transparent;
+  cursor: pointer;
 }
 .badge--ok {
   background: rgba(22, 163, 74, 0.12);
@@ -426,6 +444,10 @@ tr.group-row:hover td { background: var(--accent-soft); }
   background: rgba(220, 38, 38, 0.10);
   border-color: rgba(220, 38, 38, 0.22);
   color: #991b1b;
+}
+.pending-group-badge.is-active {
+  box-shadow: 0 0 0 2px rgba(14, 116, 144, 0.18);
+  transform: translateY(-1px);
 }
 td.col-tipo { color: var(--ink); }
 td.col-ruta { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; color: var(--ink-soft); overflow-wrap: break-word; }
@@ -465,7 +487,7 @@ footer.note {
     <p class="eyebrow">PROYECTO FONTUR · Instalación de embarcaderos</p>
     <h1>Tablero de soportes documentales fase instalación</h1>
     <p class="subtitle">Puede filtrar los siguientes documentos:</p>
-    <p class="subtitle">Bitácoras, Pólizas, Cronogramas, Actas, Permisos</p>
+    <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
   </header>
  
   <div class="panel filters">
@@ -505,7 +527,7 @@ footer.note {
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
     <div class="pending-header">
-      <span>Municipios pendientes por soporte</span>
+      <span>Municipios pendientes por cargar algún soporte</span>
       <small id="pendientes-listado-count">0</small>
     </div>
     <ul class="pending-list" id="listado-pendientes"></ul>
@@ -622,23 +644,39 @@ function escapeHtml(s) {
 function renderRuta(r) {
   if (r.estado === 'no_requiere' || r.estado === 'sin_dato') return r.estado === 'no_requiere' ? '<span class="tag-noreq">No requiere</span>' : '<span class="dash">—</span>';
   if (r.estado === 'pendiente') return '<span class="dash">—</span>';
+
+  const rutaHtml = escapeHtml(r.ruta || '').split('\\').join('\\<wbr>');
+  if (r.href) {
+    return '<a href="' + escapeHtml(r.href) + '" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: underline; word-break: break-word;">' + rutaHtml + '</a>';
+  }
+
   // permite que el navegador corte la ruta después de cada backslash,
   // en vez de partir palabras a la mitad
-  return escapeHtml(r.ruta || '').split('\\').join('\\<wbr>');
+  return rutaHtml;
 }
 
 function renderArchivo(r) {
-  if (r.estado === 'no_requiere' || r.estado === 'pendiente' || r.estado === 'sin_dato') return '<span class="dash">—</span>';
+  if (r.estado === 'pendiente' || r.estado === 'sin_dato') return '<span class="dash">—</span>';
+  if (r.estado === 'no_requiere') return '<span class="tag-noreq">No requiere</span>';
   if (r.archivos.length === 1) return escapeHtml(r.archivos[0]);
   return '<ul>' + r.archivos.map(a => '<li>' + escapeHtml(a) + '</li>').join('') + '</ul>';
 }
 
-function renderBadgeGrupo(rows) {
+let grupoPendienteActivo = null;
+
+function renderBadgeGrupo(rows, grupoKey) {
   const pendientes = rows.filter(r => r.estado === 'pendiente' || r.estado === 'sin_dato').length;
   const ok = pendientes === 0;
-  return '<span class="badge ' + (ok ? 'badge--ok' : 'badge--alert') + '">' +
+  const activo = grupoPendienteActivo === grupoKey ? ' is-active' : '';
+  return '<button type="button" class="badge ' + (ok ? 'badge--ok' : 'badge--alert') + ' pending-group-badge' + activo + '" data-grupo="' + escapeHtml(grupoKey) + '">' +
     (ok ? '✓' : '⚠') + ' ' + pendientes + ' pendiente' + (pendientes === 1 ? '' : 's') +
-    '</span>';
+    '</button>';
+}
+
+function limpiarSeleccionPendiente() {
+  document.querySelectorAll('.pending-chip').forEach(btn => btn.classList.remove('is-active'));
+  document.querySelectorAll('.pending-group-badge').forEach(btn => btn.classList.remove('is-active'));
+  grupoPendienteActivo = null;
 }
  
 function aplicarFiltros() {
@@ -646,8 +684,8 @@ function aplicarFiltros() {
   const departamento = elDepartamento.value;
   const estadoInstalacion = elInstalado.value;
   const texto = elBuscar.value.trim().toLowerCase();
- 
-  const filtradas = DATA.filter(r => {
+
+  let filtradas = DATA.filter(r => {
     if (municipio && r.municipio !== municipio) return false;
     if (departamento && r.departamento !== departamento) return false;
     if (estadoInstalacion === 'instalado' && !r.instalado) return false;
@@ -659,6 +697,15 @@ function aplicarFiltros() {
     return true;
   });
 
+  if (grupoPendienteActivo) {
+    const [grupoMunicipio, grupoDepartamento] = grupoPendienteActivo.split('||');
+    filtradas = filtradas.filter(r => {
+      if (r.municipio !== grupoMunicipio) return false;
+      if (r.departamento !== grupoDepartamento) return false;
+      return r.estado === 'pendiente' || r.estado === 'sin_dato';
+    });
+  }
+
   const claveMunicipio = r => `${r.municipio}||${r.departamento}`;
   const municipiosFiltrados = new Set(filtradas.map(claveMunicipio));
   const municipiosBase = new Set(DATA.filter(r => {
@@ -668,15 +715,42 @@ function aplicarFiltros() {
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     return true;
   }).map(claveMunicipio));
-  const pendientes = [...new Set(
+  const pendientes = [...new Map(
     filtradas
       .filter(r => r.estado === 'pendiente')
-      .map(r => `${r.municipio} (${r.departamento})`)
-  )].sort((a, b) => a.localeCompare(b, 'es'));
+      .map(r => [
+        `${r.municipio}||${r.departamento}`,
+        {
+          municipio: r.municipio,
+          departamento: r.departamento,
+          etiqueta: `${r.municipio} (${r.departamento})`
+        }
+      ])
+  ).values()].sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es'));
 
   elListadoPendientesCount.textContent = pendientes.length;
-  elListadoPendientes.innerHTML = pendientes.map(m => `<li>${escapeHtml(m)}</li>`).join('');
+  elListadoPendientes.innerHTML = pendientes.map(item => `
+    <li>
+      <button
+        type="button"
+        class="pending-chip ${municipio === item.municipio && departamento === item.departamento ? 'is-active' : ''}"
+        data-municipio="${escapeHtml(item.municipio)}"
+        data-departamento="${escapeHtml(item.departamento)}"
+      >${escapeHtml(item.etiqueta)}</button>
+    </li>
+  `).join('');
   elPanelPendientes.style.display = pendientes.length ? 'block' : 'none';
+
+  elListadoPendientes.querySelectorAll('.pending-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const municipioSeleccionado = btn.dataset.municipio;
+      const departamentoSeleccionado = btn.dataset.departamento;
+      elMunicipio.value = municipioSeleccionado;
+      elDepartamento.value = departamentoSeleccionado;
+      document.querySelectorAll('.pending-chip').forEach(b => b.classList.toggle('is-active', b === btn));
+      aplicarFiltros();
+    });
+  });
  
   const grupos = new Map();
   for (const r of filtradas) {
@@ -689,6 +763,7 @@ function aplicarFiltros() {
 
   let filas = '';
   for (const grupo of grupos.values()) {
+    const claveGrupo = `${grupo.municipio}||${grupo.departamento}`;
     filas += `
       <tr class="group-row">
         <td colspan="3">
@@ -698,7 +773,7 @@ function aplicarFiltros() {
               <span class="group-municipio">${escapeHtml(grupo.municipio)}</span>
               <span class="group-departamento">${escapeHtml(grupo.departamento)}</span>
             </div>
-            ${renderBadgeGrupo(grupo.rows)}
+            ${renderBadgeGrupo(grupo.rows, claveGrupo)}
           </div>
         </td>
       </tr>`;
@@ -713,29 +788,52 @@ function aplicarFiltros() {
     }
   }
   elTbody.innerHTML = filas;
+
+  document.querySelectorAll('.pending-group-badge').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const grupoKey = btn.dataset.grupo;
+      if (grupoPendienteActivo === grupoKey) {
+        limpiarSeleccionPendiente();
+      } else {
+        const [grupoMunicipio, grupoDepartamento] = grupoKey.split('||');
+        grupoPendienteActivo = grupoKey;
+        elMunicipio.value = grupoMunicipio;
+        elDepartamento.value = grupoDepartamento;
+        document.querySelectorAll('.pending-group-badge').forEach(b => b.classList.toggle('is-active', b === btn));
+      }
+      aplicarFiltros();
+    });
+  });
  
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
   elConteo.innerHTML = `Mostrando <strong>${municipiosFiltrados.size}</strong> de ${municipiosBase.size} municipios`;
-  elPendientes.textContent = municipiosFiltrados.size ? `${pendientes.length} pendientes sin soporte cargado` : '';
+  elPendientes.textContent = municipiosFiltrados.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';
 }
  
 // Si se elige un departamento, restringe la lista de municipios a ese departamento
 elDepartamento.addEventListener('change', () => {
+  limpiarSeleccionPendiente();
   syncSelects();
   aplicarFiltros();
 });
 
 elMunicipio.addEventListener('change', () => {
+  limpiarSeleccionPendiente();
   syncSelects();
   aplicarFiltros();
 });
 elInstalado.addEventListener('change', () => {
+  limpiarSeleccionPendiente();
   syncSelects();
   aplicarFiltros();
 });
-elBuscar.addEventListener('input', aplicarFiltros);
+elBuscar.addEventListener('input', () => {
+  limpiarSeleccionPendiente();
+  aplicarFiltros();
+});
 document.getElementById('btn-reset').addEventListener('click', () => {
+  limpiarSeleccionPendiente();
   elMunicipio.value = '';
   elDepartamento.value = '';
   elInstalado.value = '';
