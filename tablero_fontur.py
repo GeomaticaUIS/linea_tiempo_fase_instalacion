@@ -44,25 +44,26 @@ COL_DEPARTAMENTO = 7
 COL_FECHA_CAPACITACION_ENTREGA_EMB = 16
  
 # Columna (índice openpyxl, 1-based) -> etiqueta legible.
-# Los tipos de soporte documental pedidos (se excluye a propósito la
-# columna AF "RUTA SOPORTE REGISTRO FOTOGRÁFICO OBRA CIVIL2", que no forma
-# parte de la lista original).
+# Se valida directamente contra la hoja del Excel; la numeración anterior estaba
+# desalineada con la cabecera real del archivo, por eso se estaban leyendo rutas
+# y archivos de columnas equivocadas.
 COLUMNAS_SOPORTES = [
     (17, "Póliza de Cumplimiento"),
     (18, "Póliza de Responsabilidad Civil"),
     (19, "Actas de Inicio Autoridad de Transporte"),
-    (20, "Cronograma de Instalación"),
-    (21, "Reunión Preparación Instalación Municipio"),
-    (22, "Socialización Técnica Municipio"),
-    (23, "Socialización Inicio Comunidad"),
-    (24, "Autorización Ocupación Espacio Público"),
-    (25, "Actas de Vecindad"),
-    (26, "Bitácoras"),
-    (28, "Control Calidad Interventoría"),
-    (29, "Seguimiento Armado EMB"),
-    (30, "Capacitación EMB"),
-    (31, "Entrega EMB"),
-    (33, "Recepción EMB Cotecmar"),
+    (20, "Actas de Finalización Autoridad de Transporte"),
+    (21, "Cronograma de Instalación"),
+    (22, "Reunión Preparación Instalación Municipio"),
+    (23, "Socialización Técnica Municipio"),
+    (24, "Socialización Inicio Comunidad"),
+    (25, "Autorización Ocupación Espacio Público"),
+    (26, "Actas de Vecindad"),
+    (27, "Bitácoras"),
+    (29, "Control Calidad Interventoría"),
+    (30, "Seguimiento Armado EMB"),
+    (31, "Capacitación EMB"),
+    (32, "Entrega EMB"),
+    (34, "Recepción EMB Cotecmar"),
 ]
  
 MARCADOR_ARCHIVO = re.compile(r"NOMBRE\s*ARCHIVO\s*:", re.IGNORECASE)
@@ -98,8 +99,8 @@ def parsear_celda(valor):
 
     texto = str(valor).strip()
 
-    if texto.upper() == "NO REQUIERE":
-        return {"estado": "no_requiere", "ruta": "", "archivos": []}
+    if texto.upper().startswith("NO REQUIERE"):
+        return {"estado": "no_requiere", "ruta": "", "archivos": ["NO REQUIERE"]}
 
     # Si hay algo escrito pero no hay archivo documentado, se entiende
     # como evidencia de que faltó cargar ese soporte.
