@@ -130,6 +130,61 @@ h1 {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+.search-combobox { position: relative; }
+.search-combobox input { padding-right: 40px; }
+.search-toggle {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.search-toggle:hover { background: var(--accent-soft); color: var(--accent-ink); }
+.search-toggle:focus-visible { outline: 2px solid var(--accent); }
+.search-toggle span {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+.search-options {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+}
+.search-options[hidden] { display: none; }
+.search-option {
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 14px;
+}
+.search-option:hover,
+.search-option.is-active,
+.search-option[aria-selected="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.search-empty { padding: 8px 10px; color: var(--ink-faint); font-size: 13px; }
 .filters .reset {
   align-self: end;
 }
@@ -354,7 +409,11 @@ footer.note {
     </div>
     <div class="field">
       <label for="f-buscar">Buscar (tipo, ruta o archivo)</label>
-      <input id="f-buscar" type="text" placeholder="p. ej. bitácora, cronograma, poliza...">
+      <div class="search-combobox">
+        <input id="f-buscar" type="text" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="opciones-tipo" placeholder="Seleccione un tipo o escriba para buscar...">
+        <button class="search-toggle" id="btn-tipos" type="button" aria-label="Mostrar tipos de documento" aria-controls="opciones-tipo" aria-expanded="false"><span aria-hidden="true"></span></button>
+        <div class="search-options" id="opciones-tipo" role="listbox" aria-label="Tipos de documento" hidden></div>
+      </div>
     </div>
     <div class="reset">
       <button class="reset" id="btn-reset" type="button">Limpiar filtros</button>
@@ -398,6 +457,8 @@ const elMunicipio = document.getElementById('f-municipio');
 const elDepartamento = document.getElementById('f-departamento');
 const elInstalado = document.getElementById('f-instalado');
 const elBuscar = document.getElementById('f-buscar');
+const elOpcionesTipo = document.getElementById('opciones-tipo');
+const elAlternarTipos = document.getElementById('btn-tipos');
 const elTbody = document.getElementById('tbody');
 const elConteo = document.getElementById('conteo');
 const elPendientes = document.getElementById('pendientes-nota');
@@ -477,6 +538,66 @@ function syncSelects() {
 
 poblarSelect(elMunicipio, unico('municipio'));
 poblarSelect(elDepartamento, unico('departamento'));
+const tiposDocumentales = unico('tipo');
+let indiceTipoActivo = -1;
+
+function cerrarOpcionesTipo() {
+  elOpcionesTipo.hidden = true;
+  elBuscar.setAttribute('aria-expanded', 'false');
+  elAlternarTipos.setAttribute('aria-expanded', 'false');
+  elBuscar.removeAttribute('aria-activedescendant');
+  indiceTipoActivo = -1;
+}
+
+function actualizarTipoActivo() {
+  const opciones = elOpcionesTipo.querySelectorAll('[role="option"]');
+  opciones.forEach((opcion, indice) => {
+    const activo = indice === indiceTipoActivo;
+    opcion.classList.toggle('is-active', activo);
+    opcion.setAttribute('aria-selected', String(activo));
+  });
+  const activa = opciones[indiceTipoActivo];
+  if (activa) {
+    elBuscar.setAttribute('aria-activedescendant', activa.id);
+  } else {
+    elBuscar.removeAttribute('aria-activedescendant');
+  }
+}
+
+function abrirOpcionesTipo() {
+  const consulta = elBuscar.value.trim().toLocaleLowerCase('es');
+  const coincidencias = tiposDocumentales.filter(tipo => tipo.toLocaleLowerCase('es').includes(consulta));
+  elOpcionesTipo.replaceChildren();
+  indiceTipoActivo = -1;
+
+  if (coincidencias.length) {
+    coincidencias.forEach((tipo, indice) => {
+      const opcion = document.createElement('div');
+      opcion.id = `opcion-tipo-${indice}`;
+      opcion.className = 'search-option';
+      opcion.setAttribute('role', 'option');
+      opcion.setAttribute('aria-selected', 'false');
+      opcion.textContent = tipo;
+      opcion.addEventListener('mousedown', evento => evento.preventDefault());
+      opcion.addEventListener('click', () => {
+        elBuscar.value = tipo;
+        cerrarOpcionesTipo();
+        limpiarSeleccionPendiente();
+        aplicarFiltros();
+      });
+      elOpcionesTipo.appendChild(opcion);
+    });
+  } else {
+    const vacio = document.createElement('div');
+    vacio.className = 'search-empty';
+    vacio.textContent = 'Sin tipos coincidentes';
+    elOpcionesTipo.appendChild(vacio);
+  }
+
+  elOpcionesTipo.hidden = false;
+  elBuscar.setAttribute('aria-expanded', 'true');
+  elAlternarTipos.setAttribute('aria-expanded', 'true');
+}
 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -669,9 +790,42 @@ elInstalado.addEventListener('change', () => {
   syncSelects();
   aplicarFiltros();
 });
+elBuscar.addEventListener('focus', abrirOpcionesTipo);
 elBuscar.addEventListener('input', () => {
   limpiarSeleccionPendiente();
   aplicarFiltros();
+  abrirOpcionesTipo();
+});
+elBuscar.addEventListener('keydown', evento => {
+  if (evento.key === 'ArrowDown' || evento.key === 'ArrowUp') {
+    if (elOpcionesTipo.hidden) abrirOpcionesTipo();
+    const opciones = elOpcionesTipo.querySelectorAll('[role="option"]');
+    if (!opciones.length) return;
+    evento.preventDefault();
+    const paso = evento.key === 'ArrowDown' ? 1 : -1;
+    indiceTipoActivo = indiceTipoActivo < 0
+      ? (paso > 0 ? 0 : opciones.length - 1)
+      : (indiceTipoActivo + paso + opciones.length) % opciones.length;
+    actualizarTipoActivo();
+  } else if (evento.key === 'Enter' && !elOpcionesTipo.hidden && indiceTipoActivo >= 0) {
+    evento.preventDefault();
+    elOpcionesTipo.querySelectorAll('[role="option"]')[indiceTipoActivo].click();
+  } else if (evento.key === 'Escape' && !elOpcionesTipo.hidden) {
+    cerrarOpcionesTipo();
+  }
+});
+elAlternarTipos.addEventListener('click', () => {
+  if (elOpcionesTipo.hidden) {
+    elBuscar.focus();
+    abrirOpcionesTipo();
+  } else {
+    cerrarOpcionesTipo();
+  }
+});
+document.addEventListener('click', evento => {
+  if (!evento.target.closest || !evento.target.closest('.search-combobox')) {
+    cerrarOpcionesTipo();
+  }
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
   limpiarSeleccionPendiente();
