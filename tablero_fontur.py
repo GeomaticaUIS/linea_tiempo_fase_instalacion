@@ -63,7 +63,7 @@ COLUMNAS_SOPORTES = [
     (30, "Seguimiento Armado EMB"),
     (31, "Capacitación EMB"),
     (32, "Entrega EMB"),
-    (34, "Recepción EMB Cotecmar"),
+    (33, "Recepción EMB Cotecmar"),
 ]
  
 MARCADOR_ARCHIVO = re.compile(r"NOMBRE\s*ARCHIVO\s*:", re.IGNORECASE)
