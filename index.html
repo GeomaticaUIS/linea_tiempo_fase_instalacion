@@ -452,6 +452,7 @@ footer.note {
   <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos">
     <p><span>Sitios instalados</span><strong id="resumen-sitios-instalados">0</strong></p>
     <p><span>Documentos cargados de los sitios instalados</span><strong id="resumen-documentos-cargados">0</strong></p>
+    <p><span>Documentos pendientes de los sitios instalados</span><strong id="resumen-documentos-pendientes">0</strong></p>
   </div>
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
@@ -473,10 +474,10 @@ footer.note {
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-    <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual, revise.</div>
+    <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
  
-  <footer class="note">Generado automáticamente el· 2026-10-05 15:01</footer>
+  <footer class="note">Generado automáticamente el· 2026-10-05 20:46</footer>
 </div>
  
 <script>
@@ -500,8 +501,10 @@ const elEmpty = document.getElementById('empty-state');
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
 const documentosCargados = DATA.filter(r => r.instalado && r.ruta && r.estado !== 'no_requiere').length;
+const documentosPendientes = DATA.filter(r => r.instalado && r.estado === 'sin_dato').length;
 document.getElementById('resumen-sitios-instalados').textContent = sitiosInstalados.size;
 document.getElementById('resumen-documentos-cargados').textContent = documentosCargados;
+document.getElementById('resumen-documentos-pendientes').textContent = documentosPendientes;
  
 function unico(campo) {
   return [...new Set(DATA.map(r => r[campo]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
