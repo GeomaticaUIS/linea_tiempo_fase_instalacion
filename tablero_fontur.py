@@ -575,15 +575,13 @@ footer.note {
   <div class="panel filters">
     <div class="field">
       <label for="f-municipio">Municipio</label>
-      <select id="f-municipio">
-        <option value="">Todos los municipios</option>
-      </select>
+      <input id="f-municipio" type="text" list="opciones-municipio" autocomplete="off" placeholder="Escriba para buscar municipio...">
+      <datalist id="opciones-municipio"></datalist>
     </div>
     <div class="field">
       <label for="f-departamento">Departamento</label>
-      <select id="f-departamento">
-        <option value="">Todos los departamentos</option>
-      </select>
+      <input id="f-departamento" type="text" list="opciones-departamento" autocomplete="off" placeholder="Escriba para buscar departamento...">
+      <datalist id="opciones-departamento"></datalist>
     </div>
     <div class="field">
       <label for="f-instalado">Estado de instalación</label>
@@ -647,6 +645,8 @@ const DATA = __DATA_JSON__;
  
 const elMunicipio = document.getElementById('f-municipio');
 const elDepartamento = document.getElementById('f-departamento');
+const elOpcionesMunicipio = document.getElementById('opciones-municipio');
+const elOpcionesDepartamento = document.getElementById('opciones-departamento');
 const elInstalado = document.getElementById('f-instalado');
 const elBuscar = document.getElementById('f-buscar');
 const elOpcionesTipo = document.getElementById('opciones-tipo');
@@ -670,25 +670,25 @@ function unico(campo) {
   return [...new Set(DATA.map(r => r[campo]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
 }
  
-function poblarSelect(el, valores) {
+function poblarOpciones(el, valores) {
+  el.replaceChildren();
   for (const v of valores) {
     const opt = document.createElement('option');
     opt.value = v;
-    opt.textContent = v;
     el.appendChild(opt);
   }
 }
 
 function opcionesSegunFiltros(campo) {
   const estado = elInstalado.value;
-  const municipioActual = elMunicipio.value;
-  const departamentoActual = elDepartamento.value;
+  const municipioActual = elMunicipio.value.trim().toLocaleLowerCase('es');
+  const departamentoActual = elDepartamento.value.trim().toLocaleLowerCase('es');
 
   const filas = DATA.filter(r => {
     if (estado === 'instalado' && !r.instalado) return false;
     if (estado === 'no_instalado' && r.instalado) return false;
-    if (municipioActual && r.municipio !== municipioActual) return false;
-    if (departamentoActual && r.departamento !== departamentoActual) return false;
+    if (campo !== 'municipio' && municipioActual && !r.municipio.toLocaleLowerCase('es').includes(municipioActual)) return false;
+    if (campo !== 'departamento' && departamentoActual && !r.departamento.toLocaleLowerCase('es').includes(departamentoActual)) return false;
     return true;
   });
 
@@ -696,47 +696,11 @@ function opcionesSegunFiltros(campo) {
 }
 
 function syncSelects() {
-  const estado = elInstalado.value;
-  const municipioActual = elMunicipio.value;
-  const departamentoActual = elDepartamento.value;
-
-  const base = DATA.filter(r => {
-    if (estado === 'instalado' && !r.instalado) return false;
-    if (estado === 'no_instalado' && r.instalado) return false;
-    return true;
-  });
-
-  const departamentos = [...new Set(base.filter(r => {
-    if (municipioActual && r.municipio !== municipioActual) return false;
-    return true;
-  }).map(r => r.departamento).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
-
-  const municipios = [...new Set(base.filter(r => {
-    if (departamentoActual && r.departamento !== departamentoActual) return false;
-    return true;
-  }).map(r => r.municipio).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
-
-  let siguienteDepartamento = departamentoActual && departamentos.includes(departamentoActual) ? departamentoActual : '';
-  let siguienteMunicipio = municipioActual && municipios.includes(municipioActual) ? municipioActual : '';
-
-  if (!siguienteDepartamento && departamentoActual) {
-    siguienteDepartamento = '';
-  }
-  if (!siguienteMunicipio && municipioActual) {
-    siguienteMunicipio = '';
-  }
-
-  elDepartamento.innerHTML = '<option value="">Todos los departamentos</option>';
-  poblarSelect(elDepartamento, departamentos);
-  elDepartamento.value = siguienteDepartamento;
-
-  elMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
-  poblarSelect(elMunicipio, municipios);
-  elMunicipio.value = siguienteMunicipio;
+  poblarOpciones(elOpcionesMunicipio, opcionesSegunFiltros('municipio'));
+  poblarOpciones(elOpcionesDepartamento, opcionesSegunFiltros('departamento'));
 }
 
-poblarSelect(elMunicipio, unico('municipio'));
-poblarSelect(elDepartamento, unico('departamento'));
+syncSelects();
 const tiposDocumentales = unico('tipo');
 let indiceTipoActivo = -1;
 
@@ -847,8 +811,8 @@ function aplicarFiltros() {
   const texto = elBuscar.value.trim().toLowerCase();
 
   let filtradas = DATA.filter(r => {
-    if (municipio && r.municipio !== municipio) return false;
-    if (departamento && r.departamento !== departamento) return false;
+    if (municipio && !r.municipio.toLocaleLowerCase('es').includes(municipio.toLocaleLowerCase('es'))) return false;
+    if (departamento && !r.departamento.toLocaleLowerCase('es').includes(departamento.toLocaleLowerCase('es'))) return false;
     if (estadoInstalacion === 'instalado' && !r.instalado) return false;
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     if (texto) {
@@ -869,8 +833,8 @@ function aplicarFiltros() {
 
   const filasFiltradas = new Set(filtradas.map(r => r.fila_excel));
   const filasBase = new Set(DATA.filter(r => {
-    if (municipio && r.municipio !== municipio) return false;
-    if (departamento && r.departamento !== departamento) return false;
+    if (municipio && !r.municipio.toLocaleLowerCase('es').includes(municipio.toLocaleLowerCase('es'))) return false;
+    if (departamento && !r.departamento.toLocaleLowerCase('es').includes(departamento.toLocaleLowerCase('es'))) return false;
     if (estadoInstalacion === 'instalado' && !r.instalado) return false;
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     return true;
@@ -907,6 +871,7 @@ function aplicarFiltros() {
       const departamentoSeleccionado = btn.dataset.departamento;
       elMunicipio.value = municipioSeleccionado;
       elDepartamento.value = departamentoSeleccionado;
+      syncSelects();
       document.querySelectorAll('.pending-chip').forEach(b => b.classList.toggle('is-active', b === btn));
       aplicarFiltros();
     });
@@ -959,6 +924,7 @@ function aplicarFiltros() {
         grupoPendienteActivo = grupoKey;
         elMunicipio.value = grupoMunicipio;
         elDepartamento.value = grupoDepartamento;
+        syncSelects();
         document.querySelectorAll('.pending-group-badge').forEach(b => b.classList.toggle('is-active', b === btn));
       }
       aplicarFiltros();
@@ -971,14 +937,14 @@ function aplicarFiltros() {
   elPendientes.textContent = filasFiltradas.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';
 }
  
-// Si se elige un departamento, restringe la lista de municipios a ese departamento
-elDepartamento.addEventListener('change', () => {
+// Mantiene las sugerencias cruzadas mientras se escribe en ambos filtros.
+elDepartamento.addEventListener('input', () => {
   limpiarSeleccionPendiente();
   syncSelects();
   aplicarFiltros();
 });
 
-elMunicipio.addEventListener('change', () => {
+elMunicipio.addEventListener('input', () => {
   limpiarSeleccionPendiente();
   syncSelects();
   aplicarFiltros();
@@ -1031,10 +997,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   elDepartamento.value = '';
   elInstalado.value = '';
   elBuscar.value = '';
-  elMunicipio.innerHTML = '<option value="">Todos los municipios</option>';
-  elDepartamento.innerHTML = '<option value="">Todos los departamentos</option>';
-  poblarSelect(elMunicipio, unico('municipio'));
-  poblarSelect(elDepartamento, unico('departamento'));
+  syncSelects();
   aplicarFiltros();
 });
  
