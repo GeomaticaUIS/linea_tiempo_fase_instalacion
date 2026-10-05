@@ -477,7 +477,7 @@ footer.note {
     <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
  
-  <footer class="note">Generado automáticamente el· 2026-10-05 11:17</footer>
+  <footer class="note">Generado automáticamente el· 2026-10-05 11:32</footer>
 </div>
  
 <script>
@@ -500,7 +500,7 @@ const elListadoPendientesCount = document.getElementById('pendientes-listado-cou
 const elEmpty = document.getElementById('empty-state');
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
-const documentosCargados = DATA.filter(r => r.instalado && r.ruta && r.estado !== 'no_requiere').length;
+const documentosCargados = DATA.filter(r => r.instalado && r.estado === 'con_soporte').reduce((total, r) => total + r.archivos.length, 0);
 const documentosPendientes = DATA.filter(r => r.instalado && r.estado === 'sin_dato').length;
 document.getElementById('resumen-sitios-instalados').textContent = sitiosInstalados.size;
 document.getElementById('resumen-documentos-cargados').textContent = documentosCargados;
