@@ -142,6 +142,7 @@ def cargar_registros(ruta_excel):
             href = celda.hyperlink.target if celda.hyperlink else None
             parseado = parsear_celda(valor, href=href)
             registros.append({
+                "fila_excel": fila,
                 "municipio": municipio,
                 "departamento": departamento,
                 "codigo": str(codigo) if codigo is not None else "",
@@ -368,6 +369,30 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
   gap: 6px;
 }
 .meta-row strong { color: var(--ink); }
+.installation-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+}
+.installation-summary p {
+  margin: 0;
+  padding: 12px 16px;
+}
+.installation-summary p + p { border-left: 1px solid var(--line); }
+.installation-summary span {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.installation-summary strong {
+  display: block;
+  color: var(--ink);
+  font-size: 20px;
+}
 .pending-panel {
   background: var(--bg-panel);
   border: 1px solid var(--line);
@@ -533,6 +558,8 @@ footer.note {
 @media (max-width: 640px) {
   .wrap { padding: 18px 14px 40px; }
   table { min-width: 720px; }
+  .installation-summary { grid-template-columns: 1fr; }
+  .installation-summary p + p { border-left: 0; border-top: 1px solid var(--line); }
 }
 </style>
 </head>
@@ -584,6 +611,12 @@ footer.note {
     <span id="pendientes-nota"></span>
   </div>
 
+  <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos">
+    <p><span>Sitios instalados</span><strong id="resumen-sitios-instalados">0</strong></p>
+    <p><span>Documentos cargados de los sitios instalados</span><strong id="resumen-documentos-cargados">0</strong></p>
+    <p><span>Documentos pendientes de los sitios instalados</span><strong id="resumen-documentos-pendientes">0</strong></p>
+  </div>
+
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
     <div class="pending-header">
       <span>Municipios pendientes por cargar algún soporte</span>
@@ -625,6 +658,13 @@ const elPanelPendientes = document.getElementById('panel-pendientes');
 const elListadoPendientes = document.getElementById('listado-pendientes');
 const elListadoPendientesCount = document.getElementById('pendientes-listado-count');
 const elEmpty = document.getElementById('empty-state');
+
+const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
+const documentosCargados = DATA.filter(r => r.instalado && r.ruta && r.estado !== 'no_requiere').length;
+const documentosPendientes = DATA.filter(r => r.instalado && r.estado === 'sin_dato').length;
+document.getElementById('resumen-sitios-instalados').textContent = sitiosInstalados.size;
+document.getElementById('resumen-documentos-cargados').textContent = documentosCargados;
+document.getElementById('resumen-documentos-pendientes').textContent = documentosPendientes;
  
 function unico(campo) {
   return [...new Set(DATA.map(r => r[campo]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
@@ -827,18 +867,17 @@ function aplicarFiltros() {
     });
   }
 
-  const claveMunicipio = r => `${r.municipio}||${r.departamento}`;
-  const municipiosFiltrados = new Set(filtradas.map(claveMunicipio));
-  const municipiosBase = new Set(DATA.filter(r => {
+  const filasFiltradas = new Set(filtradas.map(r => r.fila_excel));
+  const filasBase = new Set(DATA.filter(r => {
     if (municipio && r.municipio !== municipio) return false;
     if (departamento && r.departamento !== departamento) return false;
     if (estadoInstalacion === 'instalado' && !r.instalado) return false;
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     return true;
-  }).map(claveMunicipio));
+  }).map(r => r.fila_excel));
   const pendientes = [...new Map(
     filtradas
-      .filter(r => r.estado === 'pendiente')
+      .filter(r => r.estado === 'sin_dato' && r.instalado)
       .map(r => [
         `${r.municipio}||${r.departamento}`,
         {
@@ -928,8 +967,8 @@ function aplicarFiltros() {
  
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
-  elConteo.innerHTML = `Mostrando <strong>${municipiosFiltrados.size}</strong> de ${municipiosBase.size} municipios`;
-  elPendientes.textContent = municipiosFiltrados.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';
+  elConteo.innerHTML = `Mostrando <strong>${filasFiltradas.size}</strong> de ${filasBase.size} filas`;
+  elPendientes.textContent = filasFiltradas.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';
 }
  
 // Si se elige un departamento, restringe la lista de municipios a ese departamento
