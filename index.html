@@ -807,10 +807,10 @@ function aplicarFiltros() {
  
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
-  elConteo.innerHTML = `Mostrando <strong>${filasFiltradas.size}</strong> de ${filasBase.size} filas`;
-  elPendientes.textContent = filasFiltradas.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';
+  elConteo.innerHTML = `Mostrando <strong>${filasFiltradas.size}</strong> de ${filasBase.size} sitios`;
+  
 }
- 
+ //811 iba elPendientes.textContent = filasFiltradas.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';/
 // Si se elige un departamento, restringe la lista de municipios a ese departamento
 elDepartamento.addEventListener('change', () => {
   limpiarSeleccionPendiente();
