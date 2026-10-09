@@ -21,6 +21,7 @@ regenerar el HTML con los datos más recientes.
 import json
 import re
 import sys
+from datetime import date, datetime
 from pathlib import Path
 
 import openpyxl
@@ -83,6 +84,15 @@ def embarcadero_instalado(valor):
     return True
 
 
+def formatear_fecha_instalacion(valor):
+    """Devuelve la fecha de instalación en formato legible para el tablero."""
+    if isinstance(valor, (datetime, date)):
+        return valor.strftime("%d/%m/%Y")
+    if isinstance(valor, str):
+        return valor.strip()
+    return ""
+
+
 def parsear_celda(valor, href=None):
     """Convierte el contenido crudo de una celda RUTA SOPORTE DOCUMENTAL en
     {estado, ruta, archivos, href}.
@@ -135,6 +145,7 @@ def cargar_registros(ruta_excel):
         codigo = ws.cell(row=fila, column=COL_CODIGO).value
         fecha_entrega = ws.cell(row=fila, column=COL_FECHA_CAPACITACION_ENTREGA_EMB).value
         instalado = embarcadero_instalado(fecha_entrega)
+        fecha_instalacion = formatear_fecha_instalacion(fecha_entrega)
 
         for col_idx, etiqueta in COLUMNAS_SOPORTES:
             celda = ws.cell(row=fila, column=col_idx)
@@ -146,6 +157,7 @@ def cargar_registros(ruta_excel):
                 "municipio": municipio,
                 "departamento": departamento,
                 "codigo": str(codigo) if codigo is not None else "",
+                "fecha_instalacion": fecha_instalacion,
                 "tipo": etiqueta,
                 "instalado": instalado,
                 **parseado,
@@ -502,7 +514,13 @@ tr.group-row:hover td { background: var(--accent-soft); }
 }
 .group-codigo { font-weight: 600; color: var(--accent); }
 .group-municipio { font-weight: 600; color: var(--accent-ink); }
-.group-departamento { color: var(--ink-soft); font-size: 13px; margin-left: 8px; }
+.group-departamento,
+.group-fecha {
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+}
+.group-fecha { color: var(--accent); }
 .badge {
   display: inline-flex;
   align-items: center;
@@ -612,7 +630,6 @@ footer.note {
   <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos">
     <p><span>Sitios instalados</span><strong id="resumen-sitios-instalados">0</strong></p>
     <p><span>Documentos cargados de los sitios instalados</span><strong id="resumen-documentos-cargados">0</strong></p>
-    <p><span>Documentos pendientes de los sitios instalados</span><strong id="resumen-documentos-pendientes">0</strong></p>
   </div>
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
@@ -660,11 +677,11 @@ const elListadoPendientesCount = document.getElementById('pendientes-listado-cou
 const elEmpty = document.getElementById('empty-state');
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
-const documentosCargados = DATA.filter(r => r.instalado && r.ruta && r.estado !== 'no_requiere').length;
-const documentosPendientes = DATA.filter(r => r.instalado && r.estado === 'sin_dato').length;
+const documentosCargados = DATA.reduce((total, r) => (
+  total + (r.instalado && r.estado === 'con_soporte' ? r.archivos.length : 0)
+), 0);
 document.getElementById('resumen-sitios-instalados').textContent = sitiosInstalados.size;
 document.getElementById('resumen-documentos-cargados').textContent = documentosCargados;
-document.getElementById('resumen-documentos-pendientes').textContent = documentosPendientes;
  
 function unico(campo) {
   return [...new Set(DATA.map(r => r[campo]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
@@ -881,7 +898,7 @@ function aplicarFiltros() {
   for (const r of filtradas) {
     const clave = r.municipio + '||' + r.departamento;
     if (!grupos.has(clave)) {
-      grupos.set(clave, { codigo: r.codigo, municipio: r.municipio, departamento: r.departamento, rows: [] });
+      grupos.set(clave, { codigo: r.codigo, municipio: r.municipio, departamento: r.departamento, fechaInstalacion: r.fecha_instalacion, rows: [] });
     }
     grupos.get(clave).rows.push(r);
   }
@@ -897,6 +914,7 @@ function aplicarFiltros() {
               <span class="group-codigo">${escapeHtml(grupo.codigo)}</span>
               <span class="group-municipio">${escapeHtml(grupo.municipio)}</span>
               <span class="group-departamento">${escapeHtml(grupo.departamento)}</span>
+              ${grupo.fechaInstalacion ? `<span class="group-fecha">Fecha de instalación: ${escapeHtml(grupo.fechaInstalacion)}</span>` : ''}
             </div>
             ${renderBadgeGrupo(grupo.rows, claveGrupo)}
           </div>

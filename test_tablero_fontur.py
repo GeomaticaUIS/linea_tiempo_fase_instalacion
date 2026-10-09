@@ -1,12 +1,18 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from tablero_fontur import embarcadero_instalado, parsear_celda
+from tablero_fontur import embarcadero_instalado, formatear_fecha_instalacion, parsear_celda
 
 
 def test_embarcadero_instalado():
     assert embarcadero_instalado(datetime(2025, 7, 25)) is True
     assert embarcadero_instalado(None) is False
     assert embarcadero_instalado('') is False
+
+
+def test_formatear_fecha_instalacion():
+    assert formatear_fecha_instalacion(datetime(2025, 7, 25)) == '25/07/2025'
+    assert formatear_fecha_instalacion(date(2025, 7, 25)) == '25/07/2025'
+    assert formatear_fecha_instalacion(None) == ''
 
 
 def test_parsear_celda_no_requiere_incluye_archivo():
