@@ -624,18 +624,17 @@ footer.note {
  
   <div class="meta-row">
     <span id="conteo">—</span>
-    <span id="pendientes-nota"></span>
   </div>
 
-  <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos">
+  <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos pendientes">
     <p><span>Sitios instalados</span><strong id="resumen-sitios-instalados">0</strong></p>
     <p><span>Documentos cargados de los sitios instalados</span><strong id="resumen-documentos-cargados">0</strong></p>
+    <p><span>Municipios pendientes sin algún soporte cargado</span><strong id="resumen-municipios-pendientes">0</strong></p>
   </div>
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
     <div class="pending-header">
       <span>Municipios pendientes por cargar algún soporte</span>
-      <small id="pendientes-listado-count">0</small>
     </div>
     <ul class="pending-list" id="listado-pendientes"></ul>
   </div>
@@ -670,10 +669,8 @@ const elOpcionesTipo = document.getElementById('opciones-tipo');
 const elAlternarTipos = document.getElementById('btn-tipos');
 const elTbody = document.getElementById('tbody');
 const elConteo = document.getElementById('conteo');
-const elPendientes = document.getElementById('pendientes-nota');
 const elPanelPendientes = document.getElementById('panel-pendientes');
 const elListadoPendientes = document.getElementById('listado-pendientes');
-const elListadoPendientesCount = document.getElementById('pendientes-listado-count');
 const elEmpty = document.getElementById('empty-state');
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
@@ -869,7 +866,7 @@ function aplicarFiltros() {
       ])
   ).values()].sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es'));
 
-  elListadoPendientesCount.textContent = pendientes.length;
+  document.getElementById('resumen-municipios-pendientes').textContent = pendientes.length;
   elListadoPendientes.innerHTML = pendientes.map(item => `
     <li>
       <button
@@ -952,7 +949,6 @@ function aplicarFiltros() {
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
   elConteo.innerHTML = `Mostrando <strong>${filasFiltradas.size}</strong> de ${filasBase.size} filas`;
-  elPendientes.textContent = filasFiltradas.size ? `${pendientes.length} municipios pendientes sin algún soporte cargado` : '';
 }
  
 // Mantiene las sugerencias cruzadas mientras se escribe en ambos filtros.
