@@ -99,8 +99,10 @@ def parsear_celda(valor, href=None):
 
     La regla del Excel es: si la celda no contiene texto después de
     'NOMBRE ARCHIVO:', ese documento está pendiente aunque la ruta aparezca
-    indicada. Si la celda está vacía, no se cuenta como pendiente porque no
-    hay evidencia de que el soporte exista ni que falte.
+    indicada. La declaración de instalación por decreto de calamidad pública
+    recibe el mismo tratamiento que 'NO REQUIERE'. Si la celda está vacía, no
+    se cuenta como pendiente porque no hay evidencia de que el soporte exista
+    ni que falte.
 
     estado es uno de: 'sin_dato', 'no_requiere', 'pendiente', 'con_soporte'.
     """
@@ -109,8 +111,12 @@ def parsear_celda(valor, href=None):
 
     texto = str(valor).strip()
 
-    if texto.upper().startswith("NO REQUIERE"):
+    texto_mayusculas = texto.upper()
+    if texto_mayusculas.startswith("NO REQUIERE"):
         return {"estado": "no_requiere", "ruta": "", "archivos": ["NO REQUIERE"], "href": href}
+    if texto_mayusculas.startswith("INSTALADO POR DECRETO DE CALAMIDAD"):
+        mensaje = texto.replace("P\ufffdBLICA", "PÚBLICA")
+        return {"estado": "no_requiere", "ruta": "", "archivos": [mensaje], "href": href}
 
     # Si hay algo escrito pero no hay archivo documentado, se entiende
     # como evidencia de que faltó cargar ese soporte.
@@ -266,6 +272,13 @@ h1 {
   color: var(--ink-soft);
   margin: 0;
   max-width: 62ch;
+}
+.table-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: 1px;
+  background: var(--bg);
 }
 .panel {
   background: var(--bg-panel);
@@ -478,11 +491,22 @@ thead th {
   color: var(--ink-soft);
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
-  position: sticky;
-  top: 0;
+  position: static;
   background: var(--bg-panel);
   white-space: nowrap;
 }
+.sticky-table-head {
+  display: none;
+  position: fixed;
+  z-index: 9;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+.sticky-table-head.is-visible { display: block; }
+.sticky-table-head table { margin: 0; }
 th.col-tipo, td.col-tipo { width: 24%; }
 th.col-ruta, td.col-ruta { width: 42%; }
 th.col-archivo, td.col-archivo { width: 34%; }
@@ -590,46 +614,48 @@ footer.note {
     <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
   </header>
  
-  <div class="panel filters">
-    <div class="field">
-      <label for="f-municipio">Municipio</label>
-      <input id="f-municipio" type="text" list="opciones-municipio" autocomplete="off" placeholder="Escriba para buscar municipio...">
-      <datalist id="opciones-municipio"></datalist>
-    </div>
-    <div class="field">
-      <label for="f-departamento">Departamento</label>
-      <input id="f-departamento" type="text" list="opciones-departamento" autocomplete="off" placeholder="Escriba para buscar departamento...">
-      <datalist id="opciones-departamento"></datalist>
-    </div>
-    <div class="field">
-      <label for="f-instalado">Estado de instalación</label>
-      <select id="f-instalado">
-        <option value="">Todos</option>
-        <option value="instalado">Instalado</option>
-        <option value="no_instalado">No instalado</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="f-buscar">Buscar (tipo, ruta o archivo)</label>
-      <div class="search-combobox">
-        <input id="f-buscar" type="text" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="opciones-tipo" placeholder="Seleccione un tipo o escriba para buscar...">
-        <button class="search-toggle" id="btn-tipos" type="button" aria-label="Mostrar tipos de documento" aria-controls="opciones-tipo" aria-expanded="false"><span aria-hidden="true"></span></button>
-        <div class="search-options" id="opciones-tipo" role="listbox" aria-label="Tipos de documento" hidden></div>
+  <div class="table-toolbar">
+    <div class="panel filters">
+      <div class="field">
+        <label for="f-municipio">Municipio</label>
+        <input id="f-municipio" type="text" list="opciones-municipio" autocomplete="off" placeholder="Escriba para buscar municipio...">
+        <datalist id="opciones-municipio"></datalist>
+      </div>
+      <div class="field">
+        <label for="f-departamento">Departamento</label>
+        <input id="f-departamento" type="text" list="opciones-departamento" autocomplete="off" placeholder="Escriba para buscar departamento...">
+        <datalist id="opciones-departamento"></datalist>
+      </div>
+      <div class="field">
+        <label for="f-instalado">Estado de instalación</label>
+        <select id="f-instalado">
+          <option value="">Todos</option>
+          <option value="instalado">Instalado</option>
+          <option value="no_instalado">No instalado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-buscar">Buscar (tipo, ruta o archivo)</label>
+        <div class="search-combobox">
+          <input id="f-buscar" type="text" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="opciones-tipo" placeholder="Seleccione un tipo o escriba para buscar...">
+          <button class="search-toggle" id="btn-tipos" type="button" aria-label="Mostrar tipos de documento" aria-controls="opciones-tipo" aria-expanded="false"><span aria-hidden="true"></span></button>
+          <div class="search-options" id="opciones-tipo" role="listbox" aria-label="Tipos de documento" hidden></div>
+        </div>
+      </div>
+      <div class="reset">
+        <button class="reset" id="btn-reset" type="button">Limpiar filtros</button>
       </div>
     </div>
-    <div class="reset">
-      <button class="reset" id="btn-reset" type="button">Limpiar filtros</button>
-    </div>
-  </div>
- 
-  <div class="meta-row">
-    <span id="conteo">—</span>
-  </div>
 
-  <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos pendientes">
-    <p><span>Sitios instalados</span><strong id="resumen-sitios-instalados">0</strong></p>
-    <p><span>Documentos cargados de los sitios instalados</span><strong id="resumen-documentos-cargados">0</strong></p>
-    <p><span>Municipios pendientes sin algún soporte cargado</span><strong id="resumen-municipios-pendientes">0</strong></p>
+    <div class="meta-row">
+      <span id="conteo">—</span>
+    </div>
+
+    <div class="installation-summary" aria-label="Resumen de sitios instalados y documentos pendientes">
+      <p><span>Sitios instalados</span><strong id="resumen-sitios-instalados">0</strong></p>
+      <p><span>Documentos cargados de los sitios instalados</span><strong id="resumen-documentos-cargados">0</strong></p>
+      <p><span>Municipios pendientes sin algún soporte cargado</span><strong id="resumen-municipios-pendientes">0</strong></p>
+    </div>
   </div>
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
@@ -652,6 +678,7 @@ footer.note {
     </table>
     <div class="empty-state" id="empty-state" style="display:none;">No hay filas que coincidan con el filtro actual.</div>
   </div>
+  <div class="sticky-table-head" id="sticky-table-head" aria-hidden="true"></div>
  
   <footer class="note">Generado automáticamente el· __FECHA_GENERACION__</footer>
 </div>
@@ -672,6 +699,46 @@ const elConteo = document.getElementById('conteo');
 const elPanelPendientes = document.getElementById('panel-pendientes');
 const elListadoPendientes = document.getElementById('listado-pendientes');
 const elEmpty = document.getElementById('empty-state');
+const elTableToolbar = document.querySelector('.table-toolbar');
+const elTableScroll = document.querySelector('.table-scroll');
+const elTable = elTableScroll.querySelector('table');
+const elStickyTableHead = document.getElementById('sticky-table-head');
+const stickyHeaderTable = elTable.cloneNode(false);
+stickyHeaderTable.appendChild(elTable.querySelector('thead').cloneNode(true));
+elStickyTableHead.appendChild(stickyHeaderTable);
+
+let stickyHeadUpdatePending = false;
+function updateStickyTableHead() {
+  const toolbarRect = elTableToolbar.getBoundingClientRect();
+  const scrollRect = elTableScroll.getBoundingClientRect();
+  const headerHeight = elTable.querySelector('thead').getBoundingClientRect().height;
+  const shouldShow = scrollRect.top < toolbarRect.bottom
+    && scrollRect.bottom > toolbarRect.bottom + headerHeight;
+
+  elStickyTableHead.classList.toggle('is-visible', shouldShow);
+  if (!shouldShow) return;
+
+  const borderLeft = parseFloat(getComputedStyle(elTableScroll).borderLeftWidth) || 0;
+  elStickyTableHead.style.top = `${toolbarRect.bottom}px`;
+  elStickyTableHead.style.left = `${scrollRect.left + borderLeft}px`;
+  elStickyTableHead.style.width = `${elTableScroll.clientWidth}px`;
+  elStickyTableHead.style.height = `${headerHeight}px`;
+  stickyHeaderTable.style.width = `${elTable.offsetWidth}px`;
+  stickyHeaderTable.style.transform = `translateX(-${elTableScroll.scrollLeft}px)`;
+}
+
+function scheduleStickyTableHeadUpdate() {
+  if (stickyHeadUpdatePending) return;
+  stickyHeadUpdatePending = true;
+  requestAnimationFrame(() => {
+    updateStickyTableHead();
+    stickyHeadUpdatePending = false;
+  });
+}
+
+window.addEventListener('scroll', scheduleStickyTableHeadUpdate, {passive: true});
+window.addEventListener('resize', scheduleStickyTableHeadUpdate);
+elTableScroll.addEventListener('scroll', scheduleStickyTableHeadUpdate, {passive: true});
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
 const documentosCargados = DATA.reduce((total, r) => (
@@ -779,9 +846,18 @@ function abrirOpcionesTipo() {
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+function renderNoRequiere(r) {
+  const mensaje = r.archivos[0] || '';
+  if (mensaje.toUpperCase().startsWith('INSTALADO POR DECRETO DE CALAMIDAD')) {
+    return '<span class="tag-noreq">' + escapeHtml(mensaje) + '</span>';
+  }
+  return '<span class="tag-noreq">No requiere</span>';
+}
  
 function renderRuta(r) {
-  if (r.estado === 'no_requiere' || r.estado === 'sin_dato') return r.estado === 'no_requiere' ? '<span class="tag-noreq">No requiere</span>' : '<span class="dash">—</span>';
+  if (r.estado === 'no_requiere') return renderNoRequiere(r);
+  if (r.estado === 'sin_dato') return '<span class="dash">—</span>';
   if (r.estado === 'pendiente') return '<span class="dash">—</span>';
 
   const rutaHtml = escapeHtml(r.ruta || '').split('\\').join('\\<wbr>');
@@ -796,7 +872,7 @@ function renderRuta(r) {
 
 function renderArchivo(r) {
   if (r.estado === 'pendiente' || r.estado === 'sin_dato') return '<span class="dash">—</span>';
-  if (r.estado === 'no_requiere') return '<span class="tag-noreq">No requiere</span>';
+  if (r.estado === 'no_requiere') return renderNoRequiere(r);
   if (r.archivos.length === 1) return escapeHtml(r.archivos[0]);
   return '<ul>' + r.archivos.map(a => '<li>' + escapeHtml(a) + '</li>').join('') + '</ul>';
 }
@@ -949,6 +1025,7 @@ function aplicarFiltros() {
   elEmpty.style.display = filtradas.length === 0 ? 'block' : 'none';
  
   elConteo.innerHTML = `Mostrando <strong>${filasFiltradas.size}</strong> de ${filasBase.size} filas`;
+  scheduleStickyTableHeadUpdate();
 }
  
 // Mantiene las sugerencias cruzadas mientras se escribe en ambos filtros.

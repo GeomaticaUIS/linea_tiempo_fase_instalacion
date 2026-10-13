@@ -22,6 +22,17 @@ def test_parsear_celda_no_requiere_incluye_archivo():
     assert resultado['archivos'] == ['NO REQUIERE']
 
 
+def test_parsear_celda_instalado_por_decreto_se_trata_como_no_requiere():
+    for mensaje in (
+        'INSTALADO POR DECRETO DE CALAMIDAD PÚBLICA',
+        'INSTALADO POR DECRETO DE CALAMIDAD P\ufffdBLICA',
+    ):
+        resultado = parsear_celda(mensaje)
+        assert resultado['estado'] == 'no_requiere'
+        assert resultado['ruta'] == ''
+        assert resultado['archivos'] == ['INSTALADO POR DECRETO DE CALAMIDAD PÚBLICA']
+
+
 def test_parsear_celda_con_ruta_y_archivo():
     valor = 'Documentos\\ruta\\archivo.pdf\nNOMBRE ARCHIVO: archivo.pdf'
     resultado = parsear_celda(valor)
