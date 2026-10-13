@@ -931,7 +931,7 @@ function aplicarFiltros() {
   }).map(r => r.fila_excel));
   const pendientes = [...new Map(
     filtradas
-      .filter(r => r.estado === 'sin_dato' && r.instalado)
+      .filter(r => r.instalado && (r.estado === 'pendiente' || r.estado === 'sin_dato'))
       .map(r => [
         `${r.municipio}||${r.departamento}`,
         {
@@ -963,6 +963,14 @@ function aplicarFiltros() {
       elDepartamento.value = departamentoSeleccionado;
       syncSelects();
       document.querySelectorAll('.pending-chip').forEach(b => b.classList.toggle('is-active', b === btn));
+      aplicarFiltros();
+    });
+    btn.addEventListener('dblclick', evento => {
+      evento.preventDefault();
+      limpiarSeleccionPendiente();
+      elMunicipio.value = '';
+      elDepartamento.value = '';
+      syncSelects();
       aplicarFiltros();
     });
   });
