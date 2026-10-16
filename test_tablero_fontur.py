@@ -22,6 +22,13 @@ def test_parsear_celda_no_requiere_incluye_archivo():
     assert resultado['archivos'] == ['NO REQUIERE']
 
 
+def test_parsear_celda_no_aplica_no_cuenta_como_pendiente():
+    resultado = parsear_celda('NO APLICA')
+    assert resultado['estado'] == 'no_requiere'
+    assert resultado['ruta'] == ''
+    assert resultado['archivos'] == ['NO APLICA']
+
+
 def test_parsear_celda_instalado_por_decreto_se_trata_como_no_requiere():
     for mensaje in (
         'INSTALADO POR DECRETO DE CALAMIDAD PÚBLICA',
