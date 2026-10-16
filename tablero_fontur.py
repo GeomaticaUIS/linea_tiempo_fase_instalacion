@@ -99,10 +99,10 @@ def parsear_celda(valor, href=None):
 
     La regla del Excel es: si la celda no contiene texto después de
     'NOMBRE ARCHIVO:', ese documento está pendiente aunque la ruta aparezca
-    indicada. La declaración de instalación por decreto de calamidad pública
-    recibe el mismo tratamiento que 'NO REQUIERE'. Si la celda está vacía, no
-    se cuenta como pendiente porque no hay evidencia de que el soporte exista
-    ni que falte.
+    indicada. 'NO APLICA' y la declaración de instalación por decreto de
+    calamidad pública reciben el mismo tratamiento que 'NO REQUIERE'. Si la
+    celda está vacía, no se cuenta como pendiente porque no hay evidencia de
+    que el soporte exista ni que falte.
 
     estado es uno de: 'sin_dato', 'no_requiere', 'pendiente', 'con_soporte'.
     """
@@ -114,11 +114,13 @@ def parsear_celda(valor, href=None):
     texto_mayusculas = texto.upper()
     if texto_mayusculas.startswith("NO REQUIERE"):
         return {"estado": "no_requiere", "ruta": "", "archivos": ["NO REQUIERE"], "href": href}
+    if texto_mayusculas.startswith("NO APLICA"):
+        return {"estado": "no_requiere", "ruta": "", "archivos": ["NO APLICA"], "href": href}
     if texto_mayusculas.startswith("INSTALADO POR DECRETO DE CALAMIDAD"):
         mensaje = texto.replace("P\ufffdBLICA", "PÚBLICA")
         return {"estado": "no_requiere", "ruta": "", "archivos": [mensaje], "href": href}
 
-    # Si hay algo escrito pero no hay archivo documentado, se entiende
+    # Si hay algo escrito pero no hay archivo documentado, se entiende NO APLICA
     # como evidencia de que faltó cargar ese soporte.
     partes = MARCADOR_ARCHIVO.split(texto, maxsplit=1)
     ruta = partes[0].strip()
@@ -851,6 +853,9 @@ function renderNoRequiere(r) {
   const mensaje = r.archivos[0] || '';
   if (mensaje.toUpperCase().startsWith('INSTALADO POR DECRETO DE CALAMIDAD')) {
     return '<span class="tag-noreq">' + escapeHtml(mensaje) + '</span>';
+  }
+  if (mensaje.toUpperCase() === 'NO APLICA') {
+    return '<span class="tag-noreq">NO APLICA</span>';
   }
   return '<span class="tag-noreq">No requiere</span>';
 }
