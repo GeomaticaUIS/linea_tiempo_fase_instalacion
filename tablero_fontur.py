@@ -257,6 +257,59 @@ html, body {
 header.page-head {
   margin-bottom: 22px;
 }
+.brand-band {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.brand-band svg { flex: none; }
+.brand-band strong {
+  display: block;
+  font-size: 19px;
+  letter-spacing: 0.02em;
+}
+.brand-band span {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+.page-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg-panel);
+  color: var(--ink-soft);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.page-nav a:hover,
+.page-nav a[aria-current="page"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.page-nav a[aria-current="page"] { font-weight: 600; }
+.page-nav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .eyebrow {
   color: var(--accent);
   font-weight: 600;
@@ -609,12 +662,20 @@ footer.note {
 </head>
 <body>
 <div class="wrap">
+  <div class="brand-band">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
+    <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span></div>
+  </div>
   <header class="page-head">
-    <p class="eyebrow">PROYECTO FONTUR · Instalación de embarcaderos</p>
     <h1>Tablero de soportes documentales fase instalación</h1>
     <p class="subtitle">Puede filtrar los siguientes documentos:</p>
     <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
   </header>
+
+  <nav class="page-nav" aria-label="Secciones del proyecto">
+    <a href="index.html" aria-current="page">Soportes documentales</a>
+    <a href="instalacion.html">Cronograma de instalación</a>
+  </nav>
  
   <div class="table-toolbar">
     <div class="panel filters">
