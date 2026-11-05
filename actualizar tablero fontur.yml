@@ -1,12 +1,14 @@
 name: Actualizar tablero FONTUR
 
-# Se dispara cuando subes un .xlsx nuevo o tocas el script en esa carpeta.
+# Se dispara cuando subes un .xlsx nuevo o modificas los scripts generadores.
 # También lo puedes correr manualmente desde la pestaña "Actions" de GitHub.
 on:
   push:
     paths:
       - '*.xlsx'
       - 'tablero_fontur.py'
+      - 'cronograma.py'
+      - '.github/workflows/actualizar_tablero_fontur.yml'
   workflow_dispatch:
 
 permissions:
@@ -29,14 +31,19 @@ jobs:
 
       - name: Generar HTML desde el Excel
         run: |
-          EXCEL=$(ls *.xlsx | head -n 1)
+          EXCEL=$(find . -maxdepth 1 -type f -name '*.xlsx' ! -name '~$*' -print -quit)
+          if [ -z "$EXCEL" ]; then
+            echo "::error::No se encontró un archivo Excel .xlsx para generar los tableros."
+            exit 1
+          fi
           echo "Usando Excel: $EXCEL"
           python tablero_fontur.py "$EXCEL" index.html
+          python cronograma.py "$EXCEL" instalacion.html
 
       - name: Subir el HTML actualizado al repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add index.html instalacion.html
           git diff --cached --quiet || git commit -m "Actualizar tablero desde Excel [skip ci]"
           git push

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cronograma de instalación de embarcaderos · Interventoría FONTUR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4F3; --bg-panel:#FFFFFF; --ink:#16232B; --muted:#4B5B63; --faint:#8A9AA1;
+  --line:#D9E0DF; --soft:#F7F8F7; --accent:#0E7490; --accent-ink:#063542; --accent-soft:#E1EFF1;
+  --shadow:0 1px 2px rgba(15,35,40,.06); --radius:10px;
+  --ok:#0f9d8f; --pend:#d97706;
+  --soc:#64748b; --obra:#d97706; --tra:#7c3aed; --arm:#0891b2; --ins:#0f9d8f; --cap:#db2777;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10171A; --bg-panel:#172024; --ink:#E8EDEC; --muted:#A9B7B9; --faint:#6C7A7C;
+    --line:#253134; --soft:#131C1F; --accent:#4FB3C9; --accent-ink:#DFF4F8; --accent-soft:#1B3439;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10171A; --bg-panel:#172024; --ink:#E8EDEC; --muted:#A9B7B9; --faint:#6C7A7C;
+  --line:#253134; --soft:#131C1F; --accent:#4FB3C9; --accent-ink:#DFF4F8; --accent-soft:#1B3439;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+h1.page{font-size:clamp(22px,3.2vw,30px);font-weight:700;margin:0 0 16px;letter-spacing:-.01em}
+.page-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.page-nav a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:7px;background:var(--bg-panel);color:var(--muted);font:inherit;font-weight:500;text-decoration:none;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.page-nav a:hover,.page-nav a[aria-current="page"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.page-nav a[aria-current="page"]{font-weight:600}
+.page-nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.portal{background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.band{background:var(--accent-soft);color:var(--accent-ink);padding:18px 20px;display:flex;gap:14px;align-items:center}
+.band svg{flex:none}
+.band b{display:block;font-size:22px;letter-spacing:.2px}
+.band span{font-size:14px;opacity:.92}
+.body{padding:20px}
+.docs h2{font-size:20px;margin:0 0 4px;font-weight:600}
+.docs p{margin:0;color:var(--muted);font-size:15px}
+.tabs{display:flex;gap:10px;margin:20px 0 18px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--bg-panel);color:var(--ink);border-radius:999px;padding:10px 18px;font:inherit;font-size:15px;cursor:default;display:inline-flex;gap:8px;align-items:center}
+.pill.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+button.pill{cursor:pointer}
+h2.sec{font-size:22px;margin:0 0 4px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 18px;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.kpi b{display:block;font-size:28px;font-weight:600;line-height:1.1}
+.kpi small{color:var(--muted);font-size:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.seg .pill{justify-content:center;padding:13px 18px;font-size:16px;width:100%}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:12px 12px;margin-bottom:22px}
+label.f{display:block;color:var(--muted);font-size:15px;font-weight:500}
+label.f select,label.f input{display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:999px;padding:11px 16px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg-panel);appearance:none}
+label.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.toggle{display:flex;gap:4px;background:var(--bg-panel);border-radius:999px}
+.toggle button{border:0;background:transparent;font:inherit;font-size:15px;color:var(--muted);padding:9px 18px;border-radius:999px;cursor:pointer}
+.toggle button.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.meta{display:flex;justify-content:space-between;align-items:center;margin:14px 0 14px;color:var(--muted);font-size:14px;gap:10px;flex-wrap:wrap}
+.count{background:var(--soft);color:var(--ink);padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.scroll{overflow-x:auto}
+.gantt{position:relative;min-width:680px}
+.axis-year{text-align:center;font-weight:600;font-size:14px;margin:0 28px 6px 190px}
+.axis,.row{display:grid;grid-template-columns:190px 1fr 28px;align-items:center}
+.axis{font-size:13px;color:#374151;height:30px}
+.axis .l{font-size:12px;color:var(--muted)}
+.axis .t{position:relative;height:100%}
+.axis .t span{position:absolute;top:50%;transform:translate(-50%,-50%);white-space:nowrap}
+.gl{position:absolute;left:190px;right:28px;top:30px;bottom:0;pointer-events:none}
+.gl i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.row{position:relative;min-height:44px;cursor:pointer;border-radius:8px}
+.row:hover{background:var(--accent-soft)}
+.row.sel{background:var(--accent-soft)}
+.row .n{font-size:14px;padding:6px 10px 6px 0}
+.row.sel .n,.row:hover .n{font-weight:600}
+.row .t{position:relative;height:44px}
+.bar{position:absolute;top:50%;height:16px;transform:translateY(-50%);border-radius:8px;background:var(--ok);min-width:12px}
+.bar.pend{background:var(--pend)}
+.row .c{justify-self:center;color:#4b5563;transition:transform .15s}
+.row.sel .c{transform:rotate(180deg)}
+.legend{display:flex;gap:18px;margin:10px 0 18px;color:#374151;font-size:15px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.detail{border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:6px;background:var(--bg-panel)}
+.detail header{display:flex;justify-content:space-between;align-items:flex-start}
+.detail h3{margin:0;font-size:20px;font-weight:600}
+.detail header p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.x{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:#374151;padding:4px 8px}
+.stage{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;margin:14px 0}
+.stage .s b{display:block;font-size:12px;font-weight:600}
+.stage .s small{font-size:11px;color:#374151}
+.stage .s small.bad{color:#b91c1c}
+.track{position:relative;height:18px;background:var(--soft);border-radius:9px}
+.track i{position:absolute;top:0;bottom:0;border-radius:9px;min-width:8px}
+.note{color:#374151;font-size:15px;margin:10px 0 0}
+.facts{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0 0;color:#374151;font-size:14px}
+.facts b{font-weight:600}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:14px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:13px;background:#fff;position:sticky;top:0}
+td.m{font-weight:600}
+.st{display:inline-flex;gap:6px;align-items:center}
+.st i{width:9px;height:9px;border-radius:50%}
+.bad{color:#b91c1c}
+.bad s{opacity:.8}
+.empty{padding:34px 10px;text-align:center;color:var(--muted)}
+.foot{color:var(--muted);font-size:14px;margin:22px 0 0}
+details.av{margin-top:10px;font-size:13px;color:#7f1d1d;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:8px 12px}
+details.av summary{cursor:pointer;font-weight:600}
+details.av ul{margin:8px 0 0;padding-left:18px}
+@media (max-width:640px){
+  .wrap{padding:18px 14px 40px}
+  .body{padding:14px}
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .axis,.row{grid-template-columns:130px 1fr 24px}
+  .axis-year{margin-left:130px;margin-right:24px}
+  .gl{left:130px;right:24px}
+  .stage{grid-template-columns:110px 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="page">Cronograma de instalación</h1>
+  <nav class="page-nav" aria-label="Secciones del proyecto">
+    <a href="index.html">Soportes documentales</a>
+    <a href="instalacion.html" aria-current="page">Cronograma de instalación</a>
+  </nav>
+  <div class="portal">
+    <div class="band">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
+      <div><b>INTERVENTORÍA</b><span>Proyecto FONTUR · Fase de instalación</span></div>
+    </div>
+    <div class="body">
+      
+      <h2 class="sec">Cronograma de instalación de embarcaderos</h2>
+      <p class="sub" id="subt"></p>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="seg">
+        <button class="pill on" id="vGeneral" type="button">Vista general</button>
+        <button class="pill" id="vAct" type="button">Por actividad</button>
+      </div>
+
+      <div class="filters">
+        <label class="f">Año<select id="fAnio"></select></label>
+        <label class="f">Mes<select id="fMes"></select></label>
+        <label class="f">Departamento<select id="fDep"></select></label>
+        <label class="f">Buscar sitio<input id="fQ" type="search" placeholder="Nombre del municipio" autocomplete="off"></label>
+      </div>
+
+      <div class="head">
+        <div>
+          <h2 class="sec" style="font-size:20px" id="tTitulo">Cronograma general</h2>
+          <p class="sub" id="tSub" style="margin:0"></p>
+        </div>
+        <div class="toggle" role="group" aria-label="Tipo de vista">
+          <button type="button" id="mGraf" class="on">Gráfico</button>
+          <button type="button" id="mTab">Tabla de fechas</button>
+        </div>
+      </div>
+
+      <div class="meta"><span>Distribución cronológica por municipio</span><span class="count" id="cnt"></span></div>
+      <div class="chips" id="chips" hidden></div>
+      <div id="chart"></div>
+      <div class="legend" id="legend"></div>
+      <div id="detail"></div>
+      <div id="avisos"></div>
+      <p class="foot" id="foot"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"sitios": [{"id": 10, "num": 1, "cod": "68575", "emb": 64, "mun": "Puerto Wilches – la Boya", "dep": "Santander", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-07-14", "b": "2025-07-14", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-07-14", "b": "2025-07-19", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-07-20", "b": "2025-07-22", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-07-23", "b": "2025-07-25", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-07-25", "b": "2025-07-25", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-07-25", "b": "2025-07-25", "aok": true, "bok": true}], "desde": "2025-07-14", "hasta": "2025-07-25", "dias": 12, "habiles": 10}, {"id": 11, "num": 2, "cod": "13442", "emb": "53", "mun": "María la Baja", "dep": "Bolívar", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-08-26", "b": "2025-08-26", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-08-27", "b": "2025-09-01", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-08-30", "b": "2025-08-30", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-09-01", "b": "2025-09-04", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-09-05", "b": "2025-09-05", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-09-05", "b": "2025-09-05", "aok": true, "bok": true}], "desde": "2025-08-26", "hasta": "2025-09-05", "dias": 10, "habiles": 8}, {"id": 12, "num": 3, "cod": "47161", "emb": "63", "mun": "Cerro de San Antonio", "dep": "Magdalena", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-08-25", "b": "2025-08-25", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-08-26", "b": "2025-09-01", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-09-01", "b": "2025-09-01", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-09-02", "b": "2025-09-05", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-09-08", "b": "2025-09-08", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-09-08", "b": "2025-09-08", "aok": true, "bok": true}], "desde": "2025-08-25", "hasta": "2025-09-08", "dias": 14, "habiles": 10}, {"id": 13, "num": 4, "cod": "47555", "emb": 3, "mun": "Plato", "dep": "Magdalena", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-09-22", "b": "2025-09-22", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-09-23", "b": "2025-10-02", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-09-26", "b": "2025-09-26", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-09-27", "b": "2025-10-02", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-10-03", "b": "2025-10-03", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-10-03", "b": "2025-10-03", "aok": true, "bok": true}], "desde": "2025-09-22", "hasta": "2025-10-03", "dias": 11, "habiles": 9}, {"id": 14, "num": 5, "cod": "47692", "emb": 1, "mun": "San Sebastián de Buenavista", "dep": "Magdalena", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-09-23", "b": "2025-09-23", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-09-24", "b": "2025-10-30", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-09-26", "b": "2025-09-26", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-09-27", "b": "2025-10-02", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-10-03", "b": "2025-10-03", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-10-03", "b": "2025-10-03", "aok": true, "bok": true}], "desde": "2025-09-23", "hasta": "2025-10-30", "dias": 10, "habiles": 8}, {"id": 15, "num": 6, "cod": "47745", "emb": 2, "mun": "Sitionuevo", "dep": "Magdalena", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-11-18", "b": "2025-11-18", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-11-18", "b": "2025-11-22", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-11-20", "b": "2025-11-20", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-11-20", "b": "2025-11-24", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-11-24", "b": "2025-11-24", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-11-24", "b": "2025-11-24", "aok": true, "bok": true}], "desde": "2025-11-18", "hasta": "2025-11-24", "dias": 7, "habiles": 5}, {"id": 16, "num": 7, "cod": "73275", "emb": 4, "mun": "Flandes", "dep": "Tolima", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-11-24", "b": "2025-11-24", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-11-26", "b": "2025-11-30", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-11-27", "b": "2025-11-30", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-12-01", "b": "2025-12-03", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-12-03", "b": "2025-12-03", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-12-03", "b": "2025-12-03", "aok": true, "bok": true}], "desde": "2025-11-24", "hasta": "2025-12-03", "dias": 8, "habiles": 6}, {"id": 17, "num": 8, "cod": "5591", "emb": 6, "mun": "Puerto Triunfo", "dep": "Antioquia", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-11-26", "b": "2025-11-26", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-11-28", "b": "2025-12-04", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-11-27", "b": "2025-11-29", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-11-29", "b": "2025-12-05", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-12-05", "b": "2025-12-05", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-12-05", "b": "2025-12-05", "aok": true, "bok": true}], "desde": "2025-11-26", "hasta": "2025-12-05", "dias": 8, "habiles": 6}, {"id": 18, "num": 9, "cod": "73217", "emb": 5, "mun": "Coyaima", "dep": "Tolima", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-12-10", "b": "2025-12-10", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-12-10", "b": "2025-12-14", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-12-09", "b": "2025-12-13", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-12-13", "b": "2025-12-16", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-12-17", "b": "2025-12-17", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-12-17", "b": "2025-12-17", "aok": true, "bok": true}], "desde": "2025-12-09", "hasta": "2025-12-17", "dias": 8, "habiles": 6}, {"id": 19, "num": 10, "cod": "20295", "emb": 13, "mun": "Gamarra", "dep": "Cesar", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-12-10", "b": "2025-12-10", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-12-11", "b": "2025-12-18", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-12-11", "b": "2025-12-12", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-12-12", "b": "2025-12-20", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-12-20", "b": "2025-12-20", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-12-20", "b": "2025-12-20", "aok": true, "bok": true}], "desde": "2025-12-10", "hasta": "2025-12-20", "dias": 10, "habiles": 7}, {"id": 20, "num": 11, "cod": "20787", "emb": 15, "mun": "Tamalameque", "dep": "Cesar", "sup": "Deicy Duarte", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-12-11", "b": "2025-12-11", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-12-12", "b": "2025-12-17", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-12-10", "b": "2025-12-11", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-12-12", "b": "2025-12-16", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-12-17", "b": "2025-12-17", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-12-17", "b": "2025-12-17", "aok": true, "bok": true}], "desde": "2025-12-10", "hasta": "2025-12-17", "dias": 6, "habiles": 4}, {"id": 21, "num": 12, "cod": "13248", "emb": 17, "mun": "El Guamo", "dep": "Bolívar", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2025-12-19", "b": "2025-12-19", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2025-12-20", "b": "2025-12-22", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2025-12-19", "b": "2025-12-19", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2025-12-19", "b": "2025-12-22", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2025-12-23", "b": "2025-12-23", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2025-12-23", "b": "2025-12-23", "aok": true, "bok": true}], "desde": "2025-12-19", "hasta": "2025-12-23", "dias": 4, "habiles": 2}, {"id": 22, "num": 13, "cod": "13140", "emb": 77, "mun": "Calamar", "dep": "Bolívar", "sup": "Deicy Duarte", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-01-16", "b": "2026-01-16", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-01-18", "b": "2026-01-22", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-01-16", "b": "2026-01-16", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-01-19", "b": "2026-01-22", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-01-23", "b": "2026-01-23", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-01-23", "b": "2026-01-23", "aok": true, "bok": true}], "desde": "2026-01-16", "hasta": "2026-01-23", "dias": 6, "habiles": 5}, {"id": 23, "num": 14, "cod": "70124", "emb": 56, "mun": "Caimito", "dep": "Sucre", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-01-19", "b": "2026-01-19", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-01-20", "b": "2026-01-24", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-01-20", "b": "2026-01-21", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-01-21", "b": "2026-01-25", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-01-26", "b": "2026-01-26", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-01-26", "b": "2026-01-26", "aok": true, "bok": true}], "desde": "2026-01-19", "hasta": "2026-01-26", "dias": 7, "habiles": 5}, {"id": 24, "num": 15, "cod": "70678", "emb": 11, "mun": "San Benito Abad", "dep": "Sucre", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-01-21", "b": "2026-01-21", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-01-22", "b": "2026-01-26", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-01-21", "b": "2026-01-22", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-01-23", "b": "2026-01-27", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-01-27", "b": "2026-01-27", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-01-27", "b": "2026-01-27", "aok": true, "bok": true}], "desde": "2026-01-21", "hasta": "2026-01-27", "dias": 6, "habiles": 4}, {"id": 25, "num": 16, "cod": "95001", "emb": 76, "mun": "San José del Guaviare", "dep": "Guaviare", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-01-02", "b": "2026-01-02", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-02-09", "b": "2026-02-11", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-02-04", "b": "2026-02-08", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-02-09", "b": "2026-02-12", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-02-13", "b": "2026-02-13", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-02-13", "b": "2026-02-13", "aok": true, "bok": true}], "desde": "2026-01-02", "hasta": "2026-02-13", "dias": 5, "habiles": null}, {"id": 26, "num": 17, "cod": "17495", "emb": 82, "mun": "Norcasia", "dep": "Caldas", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-01-02", "b": "2026-01-02", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-02-08", "b": "2026-02-12", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-02-05", "b": "2026-02-07", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-02-08", "b": "2026-02-13", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-02-13", "b": "2026-02-13", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-02-16", "b": "2026-02-16", "aok": true, "bok": true}], "desde": "2026-01-02", "hasta": "2026-02-16", "dias": 9, "habiles": null}, {"id": 27, "num": 18, "cod": "68575", "emb": "60", "mun": "Puerto Wilches 2", "dep": "Santander", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-02-17", "b": "2026-02-17", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-02-18", "b": "2026-02-21", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-02-18", "b": "2026-02-20", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-02-20", "b": "2026-02-24", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-02-25", "b": "2026-02-25", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-02-25", "b": "2026-02-25", "aok": true, "bok": true}], "desde": "2026-02-17", "hasta": "2026-02-25", "dias": 8, "habiles": null}, {"id": 28, "num": 19, "cod": "13440", "emb": 52, "mun": "Margarita", "dep": "Bolívar", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-04-09", "b": "2026-04-09", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-04-10", "b": "2026-04-13", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-04-09", "b": "2026-04-10", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-04-10", "b": "2026-04-15", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-04-16", "b": "2026-04-16", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-04-17", "b": "2026-04-17", "aok": true, "bok": true}], "desde": "2026-04-09", "hasta": "2026-04-17", "dias": 8, "habiles": null}, {"id": 29, "num": 20, "cod": "13473", "emb": 71, "mun": "Morales", "dep": "Bolívar", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-04-09", "b": "2026-04-09", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-04-10", "b": "2026-04-14", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-04-10", "b": "2026-04-11", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-04-11", "b": "2026-04-15", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-04-16", "b": "2026-04-16", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-04-17", "b": "2026-04-17", "aok": true, "bok": true}], "desde": "2026-04-09", "hasta": "2026-04-17", "dias": 8, "habiles": null}, {"id": 30, "num": 21, "cod": "8137", "emb": 67, "mun": "Campo de la Cruz", "dep": "Atlántico", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-04-14", "b": "2026-04-14", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-04-18", "b": "2026-04-20", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-04-15", "b": "2026-04-16", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-04-15", "b": "2026-04-20", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-04-20", "b": "2026-04-20", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-04-22", "b": "2026-04-22", "aok": true, "bok": true}], "desde": "2026-04-14", "hasta": "2026-04-22", "dias": 5, "habiles": null}, {"id": 31, "num": 22, "cod": "13188", "emb": 44, "mun": "Cicuco", "dep": "Bolívar", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-04-17", "b": "2026-04-17", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-04-19", "b": "2026-04-22", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-04-17", "b": "2026-04-18", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-04-19", "b": "2026-04-22", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-04-23", "b": "2026-04-23", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-04-23", "b": "2026-04-23", "aok": true, "bok": true}], "desde": "2026-04-17", "hasta": "2026-04-23", "dias": 5, "habiles": null}, {"id": 32, "num": 23, "cod": "8606", "emb": 9, "mun": "Repelón", "dep": "Atlántico", "sup": "Madelyn Castellanos", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-04-20", "b": "2026-04-20", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-04-21", "b": "2026-04-28", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-04-22", "b": "2026-04-22", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-04-22", "b": "2026-04-27", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-04-28", "b": "2026-04-28", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-04-28", "b": "2026-04-28", "aok": true, "bok": true}], "desde": "2026-04-20", "hasta": "2026-04-28", "dias": 8, "habiles": null}, {"id": 33, "num": 24, "cod": "20383", "emb": 30, "mun": "La Gloria", "dep": "Cesar", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-05-13", "b": "2026-05-13", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-05-14", "b": "2026-05-17", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-05-13", "b": "2026-05-14", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-05-14", "b": "2026-05-20", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-05-20", "b": "2026-05-20", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-05-20", "b": "2026-05-20", "aok": true, "bok": true}], "desde": "2026-05-13", "hasta": "2026-05-20", "dias": 7, "habiles": null}, {"id": 34, "num": 25, "cod": "13667", "emb": 49, "mun": "San Martín de Loba", "dep": "Bolívar", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-02", "b": "2026-06-02", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-05", "b": "2026-06-09", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-04", "b": "2026-06-05", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-05", "b": "2026-06-09", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-06-10", "b": "2026-06-10", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-06-10", "b": "2026-06-10", "aok": true, "bok": true}], "desde": "2026-06-02", "hasta": "2026-06-10", "dias": 6, "habiles": null}, {"id": 35, "num": 26, "cod": "13780", "emb": 45, "mun": "Talaigua Nuevo", "dep": "Bolívar", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-04", "b": "2026-06-04", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-06", "b": "2026-06-09", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-06", "b": "2026-06-07", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-07", "b": "2026-06-09", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-06-11", "b": "2026-06-11", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-06-11", "b": "2026-06-11", "aok": true, "bok": true}], "desde": "2026-06-04", "hasta": "2026-06-11", "dias": 6, "habiles": null}, {"id": 36, "num": 27, "cod": "13160", "emb": 74, "mun": "Morales-la Palma", "dep": "Bolívar", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-12", "b": "2026-06-12", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-14", "b": "2026-06-17", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-12", "b": "2026-06-13", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-13", "b": "2026-06-17", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-06-18", "b": "2026-06-18", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-06-18", "b": "2026-06-18", "aok": true, "bok": true}], "desde": "2026-06-12", "hasta": "2026-06-18", "dias": 5, "habiles": null}, {"id": 37, "num": 28, "cod": "13600", "emb": 34, "mun": "Rioviejo", "dep": "Bolívar", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-11", "b": "2026-06-11", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-14", "b": "2026-06-19", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-12", "b": "2026-06-14", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-14", "b": "2026-06-18", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-06-19", "b": "2026-06-19", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-06-19", "b": "2026-06-19", "aok": true, "bok": true}], "desde": "2026-06-11", "hasta": "2026-06-19", "dias": 6, "habiles": null}, {"id": 38, "num": 29, "cod": "13300", "emb": 62, "mun": "Hatillo de Loba", "dep": "Bolívar", "sup": "Madelyn Castellanos", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-24", "b": "2026-06-24", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-25", "b": "2026-06-29", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-26", "b": "2026-06-28", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-29", "b": "2026-07-01", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-07-02", "b": "2026-07-02", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-07-02", "b": "2026-07-02", "aok": true, "bok": true}], "desde": "2026-06-24", "hasta": "2026-07-02", "dias": 8, "habiles": null}, {"id": 39, "num": 30, "cod": "47720", "emb": 39, "mun": "Santa Bárbara de Pinto", "dep": "Magdalena", "sup": "Deicy Duarte", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-24", "b": "2026-06-24", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-26", "b": "2026-06-29", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-25", "b": "2026-06-27", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-28", "b": "2026-07-01", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-07-02", "b": "2026-07-02", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-07-02", "b": "2026-07-02", "aok": true, "bok": true}], "desde": "2026-06-24", "hasta": "2026-07-02", "dias": 7, "habiles": null}, {"id": 40, "num": 31, "cod": "5579", "emb": 72, "mun": "Puerto Berrío", "dep": "Antioquia", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-24", "b": "2026-06-24", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-06-29", "b": "2026-07-01", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-06-24", "b": "2026-06-25", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-06-25", "b": "2026-07-02", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-07-02", "b": "2026-07-02", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-07-02", "b": "2026-07-02", "aok": true, "bok": true}], "desde": "2026-06-24", "hasta": "2026-07-02", "dias": 4, "habiles": null}, {"id": 41, "num": 32, "cod": "8770", "emb": 46, "mun": "Suan", "dep": "Atlántico", "sup": "Madelyn Castellanos", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-07-07", "b": "2026-07-07", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-07-09", "b": "2026-07-12", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-07-08", "b": "2026-07-08", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-07-08", "b": "2026-07-15", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-07-15", "b": "2026-07-15", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-07-15", "b": "2026-07-15", "aok": true, "bok": true}], "desde": "2026-07-07", "hasta": "2026-07-15", "dias": 7, "habiles": null}, {"id": 42, "num": 33, "cod": "73030", "emb": 66, "mun": "Ambalema", "dep": "Tolima", "sup": "Deicy Duarte", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-07-07", "b": "2026-07-07", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-07-09", "b": "2026-07-12", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-07-10", "b": "2026-07-12", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-07-12", "b": "2026-07-14", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-07-15", "b": "2026-07-15", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-07-15", "b": "2026-07-15", "aok": true, "bok": true}], "desde": "2026-07-07", "hasta": "2026-07-15", "dias": 7, "habiles": null}, {"id": 43, "num": 34, "cod": "73483", "emb": 12, "mun": "Natagaima – Rincón Velú", "dep": "Tolima", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-07-29", "b": "2026-07-29", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-07-31", "b": "2026-08-04", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-07-30", "b": "2026-08-01", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-08-02", "b": "2026-08-05", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-08-06", "b": "2026-08-06", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-08-06", "b": "2026-08-06", "aok": true, "bok": true}], "desde": "2026-07-29", "hasta": "2026-08-06", "dias": 7, "habiles": null}, {"id": 44, "num": 35, "cod": "73563", "emb": 18, "mun": "Prado", "dep": "Tolima", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-07-29", "b": "2026-07-29", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-08-04", "b": "2026-08-06", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-07-30", "b": "2026-07-31", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-08-01", "b": "2026-08-05", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-08-06", "b": "2026-08-06", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-08-06", "b": "2026-08-06", "aok": true, "bok": true}], "desde": "2026-07-29", "hasta": "2026-08-06", "dias": 3, "habiles": null}, {"id": 45, "num": 36, "cod": "23417", "emb": 48, "mun": "Lorica", "dep": "Córdoba", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-08-19", "b": "2026-08-19", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-08-21", "b": "2026-08-27", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-08-21", "b": "2026-08-21", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-08-22", "b": "2026-08-27", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-08-28", "b": "2026-08-28", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-08-28", "b": "2026-08-28", "aok": true, "bok": true}], "desde": "2026-08-19", "hasta": "2026-08-28", "dias": 8, "habiles": null}, {"id": 46, "num": 37, "cod": "18150", "emb": 41, "mun": "Cartagena del Chairá", "dep": "Caquetá", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-09-01", "b": "2026-09-01", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-09-06", "b": "2026-09-09", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-09-01", "b": "2026-09-06", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-09-06", "b": "2026-09-09", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-09-10", "b": "2026-09-10", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-09-10", "b": "2026-09-10", "aok": true, "bok": true}], "desde": "2026-09-01", "hasta": "2026-09-10", "dias": 5, "habiles": null}, {"id": 47, "num": 38, "cod": "86568", "emb": 7, "mun": "Puerto Asís – Brisas de Hon Kong", "dep": "Putumayo", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-09-10", "b": "2026-09-10", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-09-12", "b": "2026-09-15", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-09-10", "b": "2026-09-13", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-09-14", "b": "2026-09-18", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-09-21", "b": "2026-09-21", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-09-21", "b": "2026-09-21", "aok": true, "bok": true}], "desde": "2026-09-10", "hasta": "2026-09-21", "dias": 10, "habiles": null}, {"id": 48, "num": 39, "cod": "86568", "emb": 43, "mun": "Puerto Asís – Puerto Vega", "dep": "Putumayo", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-09-10", "b": "2026-09-10", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-09-13", "b": "2026-09-16", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-09-10", "b": "2026-09-13", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-09-14", "b": "2026-09-18", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-09-21", "b": "2026-09-21", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-09-21", "b": "2026-09-21", "aok": true, "bok": true}], "desde": "2026-09-10", "hasta": "2026-09-21", "dias": 9, "habiles": null}, {"id": 49, "num": 40, "cod": "86573", "emb": 73, "mun": "Puerto Leguízamo", "dep": "Putumayo", "sup": "Andrés Mendez", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-09-12", "b": "2026-09-12", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-09-14", "b": "2026-09-16", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-09-07", "b": "2026-09-27", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-09-27", "b": "2026-09-30", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-10-01", "b": "2026-10-01", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-10-01", "b": "2026-10-01", "aok": true, "bok": true}], "desde": "2026-09-07", "hasta": "2026-10-01", "dias": 18, "habiles": null}, {"id": 50, "num": 41, "cod": "44090", "emb": 86, "mun": "Dibulla", "dep": "La Guajira", "sup": "Deicy Duarte", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-10-05", "b": "2026-10-05", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-10-08", "b": "2026-10-12", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-10-07", "b": "2026-10-08", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-10-09", "b": "2026-10-12", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-10-12", "b": "2026-10-12", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-10-13", "b": "2026-10-13", "aok": true, "bok": true}], "desde": "2026-10-05", "hasta": "2026-10-13", "dias": 6, "habiles": null}, {"id": 51, "num": 42, "cod": "5895", "emb": 81, "mun": "Zaragoza", "dep": "Antioquia", "sup": "Madelyn Castellanos", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-10-05", "b": "2026-10-05", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-10-08", "b": "2026-10-15", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-10-06", "b": "2026-10-08", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-10-09", "b": "2026-10-15", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-10-15", "b": "2026-10-15", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-10-15", "b": "2026-10-15", "aok": true, "bok": true}], "desde": "2026-10-05", "hasta": "2026-10-15", "dias": 8, "habiles": null}, {"id": 52, "num": 43, "cod": "5659", "emb": 20, "mun": "San Juan de Urabá", "dep": "Antioquia", "sup": "Maria Teresa Pardo", "inst": true, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-09-16", "b": "2026-09-16", "aok": true, "bok": true}, {"k": "obra", "n": "Obra civil", "a": "2026-10-20", "b": "2026-10-24", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-10-21", "b": "2026-10-22", "aok": true, "bok": true}, {"k": "arm", "n": "Armado EMB", "a": "2026-10-23", "b": "2026-10-27", "aok": true, "bok": true}, {"k": "ins", "n": "Instalación", "a": "2026-10-28", "b": "2026-10-28", "aok": true, "bok": true}, {"k": "cap", "n": "Capacitación y entrega", "a": "2026-10-28", "b": "2026-10-28", "aok": true, "bok": true}], "desde": "2026-09-16", "hasta": "2026-10-28", "dias": 9, "habiles": null}, {"id": 53, "num": 44, "cod": "94001", "emb": 14, "mun": "Inírida – Inírida", "dep": "Guainía", "sup": "Andrés Mendez", "inst": false, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-10-16", "b": "2026-10-16", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-10-05", "b": null, "aok": true, "bok": false}], "desde": "2026-10-05", "hasta": "2026-10-16", "dias": null, "habiles": null}, {"id": 54, "num": 45, "cod": "94001", "emb": 8, "mun": "Inírida – el Venado", "dep": "Guainía", "sup": "Andrés Mendez", "inst": false, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-10-16", "b": "2026-10-16", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-10-05", "b": null, "aok": true, "bok": false}], "desde": "2026-10-05", "hasta": "2026-10-16", "dias": null, "habiles": null}, {"id": 55, "num": 46, "cod": "94001", "emb": 10, "mun": "Inírida – el Remanso", "dep": "Guainía", "sup": "Andrés Mendez", "inst": false, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-10-16", "b": "2026-10-16", "aok": true, "bok": true}, {"k": "tra", "n": "Transporte EMB", "a": "2026-10-05", "b": null, "aok": true, "bok": false}], "desde": "2026-10-05", "hasta": "2026-10-16", "dias": null, "habiles": null}, {"id": 56, "num": null, "cod": "13650", "emb": null, "mun": "San Fernando", "dep": "Bolívar", "sup": "", "inst": false, "etapas": [{"k": "soc", "n": "Socialización", "a": "2026-06-02", "b": "2026-06-02", "aok": true, "bok": true}], "desde": "2026-06-02", "hasta": "2026-06-02", "dias": null, "habiles": null}], "avisos": [], "fuente": "Tablero_control_General_Instalación_180926.xlsx", "generado": "2026-11-05"};
+const DAY = 86400000;
+const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const MESES_L = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const ACT = [
+  {k:"soc",n:"Socialización",c:"var(--soc)"},{k:"obra",n:"Obra civil",c:"var(--obra)"},
+  {k:"tra",n:"Transporte EMB",c:"var(--tra)"},{k:"arm",n:"Armado EMB",c:"var(--arm)"},
+  {k:"ins",n:"Instalación",c:"var(--ins)"},{k:"cap",n:"Capacitación y entrega",c:"var(--cap)"}
+];
+const T = s => s ? Date.parse(s + "T00:00:00Z") : null;
+const dm = t => { const d = new Date(t); return String(d.getUTCDate()).padStart(2,"0") + "/" + String(d.getUTCMonth()+1).padStart(2,"0"); };
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const $ = id => document.getElementById(id);
+
+const S = DATA.sitios.filter(s => s.desde).sort((a,b) => a.desde.localeCompare(b.desde) || a.mun.localeCompare(b.mun));
+const years = [...new Set(S.flatMap(s => [s.desde.slice(0,4), s.hasta.slice(0,4)]))].sort();
+const deps = [...new Set(S.map(s => s.dep).filter(Boolean))].sort((a,b) => a.localeCompare(b,"es"));
+
+const st = {vista:"general", modo:"graf", anio:years.includes("2026") ? "2026" : years[years.length-1], mes:0, dep:"", q:"", act:"obra", sel:null};
+
+// ---- cabecera y filtros
+const total = DATA.sitios.length, inst = DATA.sitios.filter(s => s.inst).length;
+$("kpis").innerHTML = [[total,"Sitios registrados"],[inst,"Instalados"],[total-inst,"Pendiente" + (total-inst===1?"":"s")]]
+  .map(([n,l]) => `<div class="kpi"><b>${n}</b><small>${l}</small></div>`).join("");
+$("subt").textContent = `Consulta histórica de actividades · ${years[0]}–${years[years.length-1]}`;
+$("fAnio").innerHTML = years.map(y => `<option>${y}</option>`).join("");
+$("fAnio").value = st.anio;
+$("fMes").innerHTML = `<option value="0">Todos los meses</option>` + MESES_L.map((m,i) => `<option value="${i+1}">${m}</option>`).join("");
+$("fDep").innerHTML = `<option value="">Todos</option>` + deps.map(d => `<option>${esc(d)}</option>`).join("");
+$("chips").innerHTML = ACT.map(a => `<button type="button" class="chip" data-k="${a.k}"><i style="background:${a.c}"></i>${a.n}</button>`).join("");
+$("foot").textContent = `Datos de la hoja "Reporte semanal" (${DATA.fuente}) · generado el ${DATA.generado.split("-").reverse().join("/")}. Las barras muestran el rango de fechas registrado para cada sitio, de la primera a la última actividad.`;
+if (DATA.avisos.length) {
+  $("avisos").innerHTML = `<details class="av"><summary>${DATA.avisos.length} fecha${DATA.avisos.length>1?"s":""} del Excel por revisar</summary><ul>${DATA.avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>`;
+}
+
+function periodo() {
+  const y = +st.anio;
+  return st.mes ? [Date.UTC(y, st.mes-1, 1), Date.UTC(y, st.mes, 1)] : [Date.UTC(y,0,1), Date.UTC(y+1,0,1)];
+}
+function visibles() {
+  const [p0, p1] = periodo();
+  return S.filter(s => {
+    if (st.dep && s.dep !== st.dep) return false;
+    if (st.q && !norm(s.mun).includes(norm(st.q.trim()))) return false;
+    if (!(T(s.desde) < p1 && T(s.hasta) + DAY > p0)) return false;
+    if (st.vista === "act") return rangoAct(s, st.act) !== null;
+    return true;
+  });
+}
+function rangoAct(s, k) {
+  const e = s.etapas.find(x => x.k === k); if (!e) return null;
+  const v = [e.aok ? e.a : null, e.bok ? e.b : null].filter(Boolean).map(T);
+  if (!v.length) return null;
+  return [Math.min(...v), Math.max(...v)];
+}
+function rangoSitio(s) { return [T(s.desde), T(s.hasta)]; }
+
+// ---- gráfico
+function renderGantt(rows) {
+  const [p0, p1] = periodo(), span = p1 - p0;
+  const pct = t => (t - p0) / span * 100;
+  let ticks = "", lines = "";
+  if (!st.mes) {
+    for (let m = 0; m < 12; m++) {
+      const a = Date.UTC(+st.anio, m, 1), b = Date.UTC(+st.anio, m+1, 1);
+      ticks += `<span style="left:${pct((a+b)/2)}%">${MESES[m]}</span>`;
+      lines += `<i style="left:${pct(a)}%"></i>`;
+    }
+    lines += `<i style="left:100%"></i>`;
+  } else {
+    const n = (p1 - p0) / DAY;
+    for (let d = 0; d < n; d++) {
+      ticks += `<span style="left:${(d+.5)/n*100}%;font-size:11px">${d+1}</span>`;
+      lines += `<i style="left:${d/n*100}%"></i>`;
+    }
+  }
+  const act = ACT.find(a => a.k === st.act);
+  const html = rows.map(s => {
+    const [a, b] = st.vista === "act" ? rangoAct(s, st.act) : rangoSitio(s);
+    const l = Math.max(pct(a), 0), r = Math.min(pct(b + DAY), 100);
+    const color = st.vista === "act" ? act.c : (s.inst ? "var(--ok)" : "var(--pend)");
+    const tip = `${s.mun} · ${dm(a)}${b !== a ? " – " + dm(b) : ""} · ${s.inst ? "Instalado" : "Pendiente"}`;
+    return `<div class="row${st.sel === s.id ? " sel" : ""}" data-id="${s.id}" role="button" tabindex="0" aria-expanded="${st.sel === s.id}">
+      <div class="n">${esc(s.mun)}</div>
+      <div class="t"><div class="bar${st.vista!=="act" && !s.inst ? " pend" : ""}" style="left:${l}%;width:${Math.max(r-l,.9)}%;background:${color}" title="${esc(tip)}"></div></div>
+      <svg class="c" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div>`;
+  }).join("");
+  $("chart").innerHTML = `<div class="scroll"><div class="gantt">
+    <div class="axis-year">${st.mes ? MESES_L[st.mes-1] + " " : ""}${st.anio}</div>
+    <div class="axis"><div class="l">Municipio / Sitio</div><div class="t">${ticks}</div><div></div></div>
+    <div class="gl">${lines}</div>${html}</div></div>`;
+}
+
+// ---- tabla
+function celda(e, par) {
+  if (!e) return "—";
+  const f = (v, ok) => v ? (ok ? dm(T(v)) : `<span class="bad" title="Fecha inconsistente: ${v}">⚠ <s>${v.split("-").reverse().join("/")}</s></span>`) : "";
+  if (par) { const a = f(e.a, e.aok), b = f(e.b, e.bok); return a === b || !b ? a : `${a} – ${b}`; }
+  return f(e.a, e.aok);
+}
+function renderTabla(rows) {
+  const g = (s, k) => s.etapas.find(e => e.k === k);
+  $("chart").innerHTML = `<div class="scroll"><table><thead><tr>
+    <th>Municipio</th><th>Departamento</th><th>Supervisor UIS</th><th>Socialización</th><th>Obra civil</th><th>Transporte EMB</th><th>Armado EMB</th><th>Instalación</th><th>Capacitación y entrega</th><th>Días ejec.</th><th>Estado</th></tr></thead><tbody>` +
+    rows.map(s => `<tr><td class="m">${esc(s.mun)}</td><td>${esc(s.dep)}</td><td>${esc(s.sup) || "—"}</td>
+      <td>${celda(g(s,"soc"))}</td><td>${celda(g(s,"obra"),1)}</td><td>${celda(g(s,"tra"),1)}</td><td>${celda(g(s,"arm"),1)}</td>
+      <td>${celda(g(s,"ins"))}</td><td>${celda(g(s,"cap"))}</td><td>${s.dias ?? "—"}</td>
+      <td><span class="st"><i style="background:${s.inst ? "var(--ok)" : "var(--pend)"}"></i>${s.inst ? "Instalado" : "Pendiente"}</span></td></tr>`).join("") +
+    `</tbody></table></div>`;
+}
+
+// ---- detalle del sitio
+function renderDetalle() {
+  const s = S.find(x => x.id === st.sel);
+  if (!s) { $("detail").innerHTML = ""; return; }
+  const [a, b] = rangoSitio(s), span = b + DAY - a;
+  const pos = t => (t - a) / span * 100;
+  const filas = s.etapas.map(e => {
+    const col = ACT.find(x => x.k === e.k).c;
+    const v = [e.aok ? e.a : null, e.bok ? e.b : null].filter(Boolean).map(T);
+    const bad = [!e.aok && e.a ? e.a : null, !e.bok && e.b ? e.b : null].filter(Boolean);
+    const txt = v.length ? (v[0] === v[v.length-1] ? dm(v[0]) : dm(Math.min(...v)) + " – " + dm(Math.max(...v))) : "sin fecha válida";
+    const barra = v.length ? (() => { const x0 = Math.min(...v), x1 = Math.max(...v); return `<i style="left:${pos(x0)}%;width:${Math.max(pos(x1 + DAY) - pos(x0), 2)}%;background:${col}"></i>`; })() : "";
+    return `<div class="stage"><div class="s"><b>${e.n}</b><small>${txt}</small>${bad.length ? `<small class="bad"> · ⚠ revisar ${bad.map(x => x.split("-").reverse().join("/")).join(", ")}</small>` : ""}</div><div class="track">${barra}</div></div>`;
+  }).join("");
+  const sub = [s.dep, s.cod ? "DIVIPOLA " + s.cod : "", s.sup ? "Supervisor UIS: " + s.sup : ""].filter(Boolean).join(" · ");
+  $("detail").innerHTML = `<section class="detail" aria-label="Detalle de ${esc(s.mun)}">
+    <header><div><h3>${esc(s.mun)}</h3><p>Línea de tiempo detallada · ${esc(sub)}</p></div><button class="x" type="button" aria-label="Cerrar detalle" id="xDet">×</button></header>
+    ${filas}
+    <p class="note">Las barras representan la duración de cada etapa y permiten identificar actividades simultáneas.</p>
+    <div class="facts">${s.emb ? `<span>EMB fabricación: <b>${s.emb}</b></span>` : ""}${s.dias ? `<span>Días de ejecución: <b>${s.dias}</b></span>` : ""}${s.habiles ? `<span>Días hábiles: <b>${s.habiles}</b></span>` : ""}<span>Estado: <b>${s.inst ? "Instalado" : "Pendiente"}</b></span></div>
+  </section>`;
+}
+
+// ---- render general
+function render() {
+  const rows = visibles();
+  if (st.sel && !rows.some(r => r.id === st.sel)) st.sel = null;
+  $("vGeneral").classList.toggle("on", st.vista === "general");
+  $("vAct").classList.toggle("on", st.vista === "act");
+  $("mGraf").classList.toggle("on", st.modo === "graf");
+  $("mTab").classList.toggle("on", st.modo === "tab");
+  $("chips").hidden = st.vista !== "act";
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.k === st.act));
+  const actN = ACT.find(a => a.k === st.act).n;
+  $("tTitulo").textContent = st.vista === "act" ? "Cronograma por actividad" : "Cronograma general";
+  $("tSub").textContent = (st.vista === "act" ? actN + " · " : "") + (st.mes ? MESES_L[st.mes-1] + " " : "Año ") + st.anio;
+  $("cnt").textContent = `${rows.length} sitio${rows.length === 1 ? "" : "s"} en muestra`;
+  $("legend").innerHTML = st.vista === "act"
+    ? `<span><i style="background:${ACT.find(a => a.k === st.act).c}"></i>${actN}</span>`
+    : `<span><i style="background:var(--ok)"></i>Instalado</span><span><i style="background:var(--pend)"></i>Pendiente</span>`;
+  if (!rows.length) $("chart").innerHTML = `<div class="empty">No hay sitios para este filtro. Cambia el año, el mes o el departamento.</div>`;
+  else if (st.modo === "tab") renderTabla(rows); else renderGantt(rows);
+  renderDetalle();
+}
+
+// ---- eventos
+$("fAnio").onchange = e => { st.anio = e.target.value; render(); };
+$("fMes").onchange = e => { st.mes = +e.target.value; render(); };
+$("fDep").onchange = e => { st.dep = e.target.value; render(); };
+$("fQ").oninput = e => { st.q = e.target.value; render(); };
+$("vGeneral").onclick = () => { st.vista = "general"; render(); };
+$("vAct").onclick = () => { st.vista = "act"; render(); };
+$("mGraf").onclick = () => { st.modo = "graf"; render(); };
+$("mTab").onclick = () => { st.modo = "tab"; render(); };
+$("chips").onclick = e => { const c = e.target.closest(".chip"); if (c) { st.act = c.dataset.k; render(); } };
+const abrir = el => { const r = el.closest(".row"); if (!r) return; const id = +r.dataset.id; st.sel = st.sel === id ? null : id; render(); if (st.sel) $("detail").scrollIntoView({behavior:"smooth", block:"nearest"}); };
+$("chart").onclick = e => abrir(e.target);
+$("chart").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(e.target); } };
+$("detail").onclick = e => { if (e.target.id === "xDet") { st.sel = null; render(); } };
+render();
+</script>
+</body>
+</html>
