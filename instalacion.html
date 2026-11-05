@@ -66,6 +66,7 @@ label.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .toggle button.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
 .meta{display:flex;justify-content:space-between;align-items:center;margin:14px 0 14px;color:var(--muted);font-size:14px;gap:10px;flex-wrap:wrap}
 .count{background:var(--soft);color:var(--ink);padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.chips-help{color:var(--muted);font-size:13px;margin:0 0 8px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
 .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
@@ -174,7 +175,8 @@ details.av ul{margin:8px 0 0;padding-left:18px}
       </div>
 
       <div class="meta"><span>Distribución cronológica por municipio</span><span class="count" id="cnt"></span></div>
-      <div class="chips" id="chips" hidden></div>
+      <p class="chips-help" id="chips-help" hidden>Selecciona una fase para filtrar los sitios; el punto de color identifica la fase.</p>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar cronograma por actividad" hidden></div>
       <div id="chart"></div>
       <div class="legend" id="legend"></div>
       <div id="detail"></div>
@@ -195,7 +197,7 @@ const ACT = [
   {k:"ins",n:"Instalación",c:"var(--ins)"},{k:"cap",n:"Capacitación y entrega",c:"var(--cap)"}
 ];
 const T = s => s ? Date.parse(s + "T00:00:00Z") : null;
-const dm = t => { const d = new Date(t); return String(d.getUTCDate()).padStart(2,"0") + "/" + String(d.getUTCMonth()+1).padStart(2,"0"); };
+const dm = t => { const d = new Date(t); return String(d.getUTCDate()).padStart(2,"0") + "/" + String(d.getUTCMonth()+1).padStart(2,"0") + "/" + d.getUTCFullYear(); };
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const $ = id => document.getElementById(id);
@@ -215,7 +217,7 @@ $("fAnio").innerHTML = years.map(y => `<option>${y}</option>`).join("");
 $("fAnio").value = st.anio;
 $("fMes").innerHTML = `<option value="0">Todos los meses</option>` + MESES_L.map((m,i) => `<option value="${i+1}">${m}</option>`).join("");
 $("fDep").innerHTML = `<option value="">Todos</option>` + deps.map(d => `<option>${esc(d)}</option>`).join("");
-$("chips").innerHTML = ACT.map(a => `<button type="button" class="chip" data-k="${a.k}"><i style="background:${a.c}"></i>${a.n}</button>`).join("");
+$("chips").innerHTML = ACT.map(a => `<button type="button" class="chip" data-k="${a.k}" aria-pressed="false" title="Filtrar por ${a.n}"><i style="background:${a.c}"></i>${a.n}</button>`).join("");
 $("foot").textContent = `Datos de la hoja "Reporte semanal" (${DATA.fuente}) · generado el ${DATA.generado.split("-").reverse().join("/")}. Las barras muestran el rango de fechas registrado para cada sitio, de la primera a la última actividad.`;
 if (DATA.avisos.length) {
   $("avisos").innerHTML = `<details class="av"><summary>${DATA.avisos.length} fecha${DATA.avisos.length>1?"s":""} del Excel por revisar</summary><ul>${DATA.avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>`;
@@ -329,7 +331,12 @@ function render() {
   $("mGraf").classList.toggle("on", st.modo === "graf");
   $("mTab").classList.toggle("on", st.modo === "tab");
   $("chips").hidden = st.vista !== "act";
-  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.k === st.act));
+  $("chips-help").hidden = st.vista !== "act";
+  document.querySelectorAll(".chip").forEach(c => {
+    const activo = c.dataset.k === st.act;
+    c.classList.toggle("on", activo);
+    c.setAttribute("aria-pressed", String(activo));
+  });
   const actN = ACT.find(a => a.k === st.act).n;
   $("tTitulo").textContent = st.vista === "act" ? "Cronograma por actividad" : "Cronograma general";
   $("tSub").textContent = (st.vista === "act" ? actN + " · " : "") + (st.mes ? MESES_L[st.mes-1] + " " : "Año ") + st.anio;
