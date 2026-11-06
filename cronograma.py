@@ -179,8 +179,6 @@ h2.sec{font-size:22px;margin:0 0 4px;font-weight:600}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
 .kpi b{display:block;font-size:28px;font-weight:600;line-height:1.1}
 .kpi small{color:var(--muted);font-size:12px}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.seg .pill{justify-content:center;padding:13px 18px;font-size:16px;width:100%}
 .filters{display:grid;grid-template-columns:1fr 1fr;gap:12px 12px;margin-bottom:22px}
 label.f{display:block;color:var(--muted);font-size:15px;font-weight:500}
 label.f select,label.f input{display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:999px;padding:11px 16px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg-panel);appearance:none}
@@ -281,11 +279,6 @@ details.av ul{margin:8px 0 0;padding-left:18px}
 
       <div class="kpis" id="kpis"></div>
 
-      <div class="seg">
-        <button class="pill on" id="vGeneral" type="button">Vista general</button>
-        <button class="pill" id="vAct" type="button">Por actividad</button>
-      </div>
-
       <div class="filters">
         <label class="f">Año<select id="fAnio"></select></label>
         <label class="f">Mes<select id="fMes"></select></label>
@@ -305,9 +298,8 @@ details.av ul{margin:8px 0 0;padding-left:18px}
       </div>
 
       <div class="meta"><span>Distribución cronológica por municipio</span></div>
-      <p class="chips-help" id="chips-help" hidden>Selecciona una fase para filtrar los sitios; el punto de color identifica la fase.</p>
-      <div class="chips" id="chips" role="group" aria-label="Filtrar cronograma por actividad" hidden></div>
-      <div class="legend activity-legend" id="activity-legend" aria-label="Leyenda de actividades"></div>
+      <p class="chips-help" id="chips-help">Selecciona una actividad para ver su periodo en el cronograma; usa “Todas las actividades” para volver al periodo completo.</p>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar cronograma por actividad"></div>
       <div id="chart"></div>
       <div class="legend" id="legend"></div>
       <div id="detail"></div>
@@ -337,7 +329,7 @@ const S = DATA.sitios.filter(s => s.desde).sort((a,b) => a.desde.localeCompare(b
 const years = [...new Set(S.flatMap(s => [s.desde.slice(0,4), s.hasta.slice(0,4)]))].sort();
 const deps = [...new Set(S.map(s => s.dep).filter(Boolean))].sort((a,b) => a.localeCompare(b,"es"));
 
-const st = {vista:"general", modo:"graf", anio:years.includes("2026") ? "2026" : years[years.length-1], mes:0, dep:"", q:"", act:"obra", sel:null};
+const st = {modo:"graf", anio:years.includes("2026") ? "2026" : years[years.length-1], mes:0, dep:"", q:"", act:"", sel:null};
 
 // ---- cabecera y filtros
 const total = DATA.sitios.length, inst = DATA.sitios.filter(s => s.inst).length;
@@ -348,7 +340,8 @@ $("fAnio").innerHTML = years.map(y => `<option>${y}</option>`).join("");
 $("fAnio").value = st.anio;
 $("fMes").innerHTML = `<option value="0">Todos los meses</option>` + MESES_L.map((m,i) => `<option value="${i+1}">${m}</option>`).join("");
 $("fDep").innerHTML = `<option value="">Todos</option>` + deps.map(d => `<option>${esc(d)}</option>`).join("");
-$("chips").innerHTML = ACT.map(a => `<button type="button" class="chip" data-k="${a.k}" aria-pressed="false" title="Filtrar por ${a.n}"><i style="background:${a.c}"></i>${a.n}</button>`).join("");
+$("chips").innerHTML = `<button type="button" class="chip" data-k="" aria-pressed="true">Todas las actividades</button>` +
+  ACT.map(a => `<button type="button" class="chip" data-k="${a.k}" aria-pressed="false" title="Filtrar por ${a.n}"><i style="background:${a.c}"></i>${a.n}</button>`).join("");
 
 
 function periodo() {
@@ -361,7 +354,7 @@ function visibles() {
     if (st.dep && s.dep !== st.dep) return false;
     if (st.q && !norm(s.mun).includes(norm(st.q.trim()))) return false;
     if (!(T(s.desde) < p1 && T(s.hasta) + DAY > p0)) return false;
-    if (st.vista === "act") return rangoAct(s, st.act) !== null;
+    if (st.act && rangoAct(s, st.act) === null) return false;
     return true;
   });
 }
@@ -394,13 +387,14 @@ function renderGantt(rows) {
   }
   const act = ACT.find(a => a.k === st.act);
   const html = rows.map(s => {
-    const [a, b] = st.vista === "act" ? rangoAct(s, st.act) : rangoSitio(s);
+    const rango = st.act ? rangoAct(s, st.act) : rangoSitio(s);
+    const [a, b] = rango || rangoSitio(s);
     const l = Math.max(pct(a), 0), r = Math.min(pct(b + DAY), 100);
-    const color = st.vista === "act" ? act.c : (s.inst ? "var(--ok)" : "var(--pend)");
-    const tip = `${s.mun} · ${dm(a)}${b !== a ? " – " + dm(b) : ""} · ${s.inst ? "Instalado" : "Pendiente"}`;
+    const color = act ? act.c : (s.inst ? "var(--ok)" : "var(--pend)");
+    const tip = `${s.mun} · ${act ? act.n + " · " : ""}${dm(a)}${b !== a ? " – " + dm(b) : ""}${act ? "" : " · " + (s.inst ? "Instalado" : "Pendiente")}`;
     return `<div class="row${st.sel === s.id ? " sel" : ""}" data-id="${s.id}" role="button" tabindex="0" aria-expanded="${st.sel === s.id}">
       <div class="n">${esc(s.mun)}</div>
-      <div class="t"><div class="bar${st.vista!=="act" && !s.inst ? " pend" : ""}" style="left:${l}%;width:${Math.max(r-l,.9)}%;background:${color}" title="${esc(tip)}"></div></div>
+      <div class="t"><div class="bar${!act && !s.inst ? " pend" : ""}" style="left:${l}%;width:${Math.max(r-l,.9)}%;background:${color}" title="${esc(tip)}"></div></div>
       <svg class="c" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div>`;
   }).join("");
   $("chart").innerHTML = `<div class="scroll"><div class="gantt">
@@ -464,7 +458,7 @@ function renderDetalle() {
     ${ejeMeses}
     ${filas}
     <p class="note">Las barras representan la duración de cada etapa y permiten identificar actividades simultáneas.</p>
-    <div class="facts">${s.emb ? `<span>Embarcadero Número: <b>${s.emb}</b></span>` : ""}${s.dias ? `<span>Días de ejecución: <b>${s.dias}</b></span>` : ""}${s.habiles ? `<span>Días hábiles: <b>${s.habiles}</b></span>` : ""}<span>Estado: <b>${s.inst ? "Instalado" : "Pendiente"}</b></span></div>
+    <div class="facts">${s.dias ? `<span>Días de ejecución: <b>${s.dias}</b></span>` : ""}${s.habiles ? `<span>Días hábiles: <b>${s.habiles}</b></span>` : ""}<span>Estado: <b>${s.inst ? "Instalado" : "Pendiente"}</b></span></div>
   </section>`;
 }
 
@@ -472,25 +466,18 @@ function renderDetalle() {
 function render() {
   const rows = visibles();
   if (st.sel && !rows.some(r => r.id === st.sel)) st.sel = null;
-  $("vGeneral").classList.toggle("on", st.vista === "general");
-  $("vAct").classList.toggle("on", st.vista === "act");
   $("mGraf").classList.toggle("on", st.modo === "graf");
   $("mTab").classList.toggle("on", st.modo === "tab");
-  $("chips").hidden = st.vista !== "act";
-  $("chips-help").hidden = st.vista !== "act";
-  $("activity-legend").hidden = st.vista !== "general";
   document.querySelectorAll(".chip").forEach(c => {
     const activo = c.dataset.k === st.act;
     c.classList.toggle("on", activo);
     c.setAttribute("aria-pressed", String(activo));
   });
-  const actN = ACT.find(a => a.k === st.act).n;
-  $("tTitulo").textContent = st.vista === "act" ? "Cronograma por actividad" : "Cronograma general";
-  $("tSub").textContent = (st.vista === "act" ? actN + " · " : "") + (st.mes ? MESES_L[st.mes-1] + " " : "Año ") + st.anio;
-  $("activity-legend").innerHTML = `<b>Leyenda:</b>` + ACT
-    .map(a => `<span><i style="background:${a.c}"></i>${a.n}</span>`).join("");
-  $("legend").innerHTML = st.vista === "act"
-    ? `<span><i style="background:${ACT.find(a => a.k === st.act).c}"></i>${actN}</span>`
+  const act = ACT.find(a => a.k === st.act);
+  $("tTitulo").textContent = "Cronograma general";
+  $("tSub").textContent = (act ? act.n + " · " : "") + (st.mes ? MESES_L[st.mes-1] + " " : "Año ") + st.anio;
+  $("legend").innerHTML = act
+    ? `<span><i style="background:${act.c}"></i>${act.n}</span>`
     : `<span><i style="background:var(--ok)"></i>Instalado</span><span><i style="background:var(--pend)"></i>Pendiente</span>`;
   if (!rows.length) $("chart").innerHTML = `<div class="empty">No hay sitios para este filtro. Cambia el año, el mes o el departamento.</div>`;
   else if (st.modo === "tab") renderTabla(rows); else renderGantt(rows);
@@ -502,8 +489,6 @@ $("fAnio").onchange = e => { st.anio = e.target.value; render(); };
 $("fMes").onchange = e => { st.mes = +e.target.value; render(); };
 $("fDep").onchange = e => { st.dep = e.target.value; render(); };
 $("fQ").oninput = e => { st.q = e.target.value; render(); };
-$("vGeneral").onclick = () => { st.vista = "general"; render(); };
-$("vAct").onclick = () => { st.vista = "act"; render(); };
 $("mGraf").onclick = () => { st.modo = "graf"; render(); };
 $("mTab").onclick = () => { st.modo = "tab"; render(); };
 $("chips").onclick = e => { const c = e.target.closest(".chip"); if (c) { st.act = c.dataset.k; render(); } };
