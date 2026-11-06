@@ -29,6 +29,7 @@ COLS = {
     "dias": "DIAS DE EJECUCIÓN", "habiles": "DIAS HABILES DE EJECUCIÓN",
 }
 MINUSCULAS = {"de", "del", "la", "las", "los", "el", "y"}
+MUNICIPIOS_EXCLUIDOS = {"SAN FERNANDO"}
 
 
 def nombre(txt):
@@ -78,6 +79,8 @@ def leer(xlsx):
             return True
 
         nom = nombre(g("mun"))
+        if nom.upper() in MUNICIPIOS_EXCLUIDOS:
+            continue
         etapas = []
         for k, etiqueta, a, b in (
             ("soc", "Socialización", "soc", None), ("obra", "Obra civil", "obra_a", "obra_b"),

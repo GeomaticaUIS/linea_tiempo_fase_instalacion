@@ -68,6 +68,7 @@ COLUMNAS_SOPORTES = [
 ]
  
 MARCADOR_ARCHIVO = re.compile(r"NOMBRE\s*ARCHIVO\s*:", re.IGNORECASE)
+MUNICIPIOS_EXCLUIDOS = {"SAN FERNANDO"}
  
  
 # ---------------------------------------------------------------------------
@@ -149,6 +150,8 @@ def cargar_registros(ruta_excel):
         if municipio is None or str(municipio).strip() == "":
             continue
         municipio = str(municipio).strip()
+        if municipio.upper() in MUNICIPIOS_EXCLUIDOS:
+            continue
         departamento = str(ws.cell(row=fila, column=COL_DEPARTAMENTO).value or "").strip()
         codigo = ws.cell(row=fila, column=COL_CODIGO).value
         fecha_entrega = ws.cell(row=fila, column=COL_FECHA_CAPACITACION_ENTREGA_EMB).value
