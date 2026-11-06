@@ -344,10 +344,7 @@ $("fAnio").value = st.anio;
 $("fMes").innerHTML = `<option value="0">Todos los meses</option>` + MESES_L.map((m,i) => `<option value="${i+1}">${m}</option>`).join("");
 $("fDep").innerHTML = `<option value="">Todos</option>` + deps.map(d => `<option>${esc(d)}</option>`).join("");
 $("chips").innerHTML = ACT.map(a => `<button type="button" class="chip" data-k="${a.k}" aria-pressed="false" title="Filtrar por ${a.n}"><i style="background:${a.c}"></i>${a.n}</button>`).join("");
-$("foot").textContent = `Datos de la hoja "Reporte semanal" (${DATA.fuente}) · generado el ${DATA.generado.split("-").reverse().join("/")}. Las barras muestran el rango de fechas registrado para cada sitio, de la primera a la última actividad.`;
-if (DATA.avisos.length) {
-  $("avisos").innerHTML = `<details class="av"><summary>${DATA.avisos.length} fecha${DATA.avisos.length>1?"s":""} del Excel por revisar</summary><ul>${DATA.avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></details>`;
-}
+
 
 function periodo() {
   const y = +st.anio;
