@@ -332,9 +332,9 @@ function renderDetalle() {
     const barra = v.length ? (() => { const x0 = Math.min(...v), x1 = Math.max(...v); return `<i style="left:${pos(x0)}%;width:${Math.max(pos(x1 + DAY) - pos(x0), 2)}%;background:${col}"></i>`; })() : "";
     return `<div class="stage"><div class="s"><b>${e.n}</b><small>${txt}</small>${bad.length ? `<small class="bad"> · ⚠ revisar ${bad.map(x => x.split("-").reverse().join("/")).join(", ")}</small>` : ""}</div><div class="track">${marcasMes}${barra}</div></div>`;
   }).join("");
-  const sub = [s.dep, s.cod ? "DIVIPOLA " + s.cod : "", s.sup ? "Supervisor UIS: " + s.sup : ""].filter(Boolean).join(" · ");
+  const sub = s.dep ? `(${s.dep})` : "";
   $("detail").innerHTML = `<section class="detail" aria-label="Detalle de ${esc(s.mun)}">
-    <header><div><h3>${esc(s.mun)}</h3><p>Línea de tiempo detallada · ${esc(sub)}</p></div><button class="x" type="button" aria-label="Cerrar detalle" id="xDet">×</button></header>
+    <header><div><h3>${esc(s.mun)} ${esc(sub)}</h3><p>Línea de tiempo detallada</p></div><button class="x" type="button" aria-label="Cerrar detalle" id="xDet">×</button></header>
     ${ejeMeses}
     ${filas}
     <p class="note">Las barras representan la duración de cada etapa y permiten identificar actividades simultáneas.</p>
