@@ -191,7 +191,6 @@ label.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .toggle button{border:0;background:transparent;font:inherit;font-size:15px;color:var(--muted);padding:9px 18px;border-radius:999px;cursor:pointer}
 .toggle button.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
 .meta{display:flex;justify-content:space-between;align-items:center;margin:14px 0 14px;color:var(--muted);font-size:14px;gap:10px;flex-wrap:wrap}
-.count{background:var(--soft);color:var(--ink);padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600}
 .chips-help{color:var(--muted);font-size:13px;margin:0 0 8px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
@@ -300,9 +299,10 @@ details.av ul{margin:8px 0 0;padding-left:18px}
         </div>
       </div>
 
-      <div class="meta"><span>Distribución cronológica por municipio</span><span class="count" id="cnt"></span></div>
+      <div class="meta"><span>Distribución cronológica por municipio</span></div>
       <p class="chips-help" id="chips-help" hidden>Selecciona una fase para filtrar los sitios; el punto de color identifica la fase.</p>
       <div class="chips" id="chips" role="group" aria-label="Filtrar cronograma por actividad" hidden></div>
+      <div class="legend activity-legend" id="activity-legend" aria-label="Leyenda de actividades"></div>
       <div id="chart"></div>
       <div class="legend" id="legend"></div>
       <div id="detail"></div>
@@ -455,6 +455,7 @@ function render() {
   $("mTab").classList.toggle("on", st.modo === "tab");
   $("chips").hidden = st.vista !== "act";
   $("chips-help").hidden = st.vista !== "act";
+  $("activity-legend").hidden = st.vista !== "general";
   document.querySelectorAll(".chip").forEach(c => {
     const activo = c.dataset.k === st.act;
     c.classList.toggle("on", activo);
@@ -463,7 +464,8 @@ function render() {
   const actN = ACT.find(a => a.k === st.act).n;
   $("tTitulo").textContent = st.vista === "act" ? "Cronograma por actividad" : "Cronograma general";
   $("tSub").textContent = (st.vista === "act" ? actN + " · " : "") + (st.mes ? MESES_L[st.mes-1] + " " : "Año ") + st.anio;
-  $("cnt").textContent = `${rows.length} sitio${rows.length === 1 ? "" : "s"} en muestra`;
+  $("activity-legend").innerHTML = `<b>Leyenda:</b>` + ACT
+    .map(a => `<span><i style="background:${a.c}"></i>${a.n}</span>`).join("");
   $("legend").innerHTML = st.vista === "act"
     ? `<span><i style="background:${ACT.find(a => a.k === st.act).c}"></i>${actN}</span>`
     : `<span><i style="background:var(--ok)"></i>Instalado</span><span><i style="background:var(--pend)"></i>Pendiente</span>`;
