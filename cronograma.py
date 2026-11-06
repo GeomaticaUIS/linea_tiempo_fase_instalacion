@@ -28,6 +28,7 @@ COLS = {
     "ins": "FECHA INSTALACIÓN EMB", "cap": "FECHA CAPACITACIÓN Y ENTREGA EMB",
     "dias": "DIAS DE EJECUCIÓN", "habiles": "DIAS HABILES DE EJECUCIÓN",
 }
+COLS_OPCIONALES = {"habiles"}
 MINUSCULAS = {"de", "del", "la", "las", "los", "el", "y"}
 MUNICIPIOS_EXCLUIDOS = {"SAN FERNANDO"}
 
@@ -54,16 +55,18 @@ def leer(xlsx):
     for c in ws[FILA_ENCABEZADO]:
         if c.value:
             head[str(c.value).strip().upper()] = c.column
-    def col(nombre_col):
+    def col(nombre_col, opcional=False):
         for k, v in head.items():
             if k.startswith(nombre_col.upper()[:28]):
                 return v
+        if opcional:
+            return None
         raise KeyError(f"No encontré la columna '{nombre_col}' en la fila {FILA_ENCABEZADO}")
-    idx = {k: col(v) for k, v in COLS.items()}
+    idx = {k: col(v, opcional=k in COLS_OPCIONALES) for k, v in COLS.items()}
 
     sitios, avisos = [], []
     for fila in range(FILA_ENCABEZADO + 1, ws.max_row + 1):
-        g = lambda k: ws.cell(fila, idx[k]).value
+        g = lambda k: ws.cell(fila, idx[k]).value if idx[k] is not None else None
         if not g("mun"):
             continue
         f = {k: iso(g(k)) for k in ("soc", "obra_a", "obra_b", "tra_a", "tra_b", "arm_a", "arm_b", "ins", "cap")}
