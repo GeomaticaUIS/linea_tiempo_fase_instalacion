@@ -414,8 +414,8 @@ function celda(e, par) {
 function renderTabla(rows) {
   const g = (s, k) => s.etapas.find(e => e.k === k);
   $("chart").innerHTML = `<div class="scroll"><table><thead><tr>
-    <th>Municipio</th><th>Departamento</th><th>Supervisor UIS</th><th>Socialización</th><th>Obra civil</th><th>Transporte EMB</th><th>Armado EMB</th><th>Instalación</th><th>Capacitación y entrega</th><th>Días ejec.</th><th>Estado</th></tr></thead><tbody>` +
-    rows.map(s => `<tr><td class="m">${esc(s.mun)}</td><td>${esc(s.dep)}</td><td>${esc(s.sup) || "—"}</td>
+    <th>Municipio</th><th>Departamento</th><th>Socialización</th><th>Obra civil</th><th>Transporte EMB</th><th>Armado EMB</th><th>Instalación</th><th>Capacitación y entrega</th><th>Días ejec.</th><th>Estado</th></tr></thead><tbody>` +
+    rows.map(s => `<tr><td class="m">${esc(s.mun)}</td><td>${esc(s.dep)}</td>
       <td>${celda(g(s,"soc"))}</td><td>${celda(g(s,"obra"),1)}</td><td>${celda(g(s,"tra"),1)}</td><td>${celda(g(s,"arm"),1)}</td>
       <td>${celda(g(s,"ins"))}</td><td>${celda(g(s,"cap"))}</td><td>${s.dias ?? "—"}</td>
       <td><span class="st"><i style="background:${s.inst ? "var(--ok)" : "var(--pend)"}"></i>${s.inst ? "Instalado" : "Pendiente"}</span></td></tr>`).join("") +
