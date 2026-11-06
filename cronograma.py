@@ -444,7 +444,7 @@ function renderDetalle() {
     <header><div><h3>${esc(s.mun)}</h3><p>Línea de tiempo detallada · ${esc(sub)}</p></div><button class="x" type="button" aria-label="Cerrar detalle" id="xDet">×</button></header>
     ${filas}
     <p class="note">Las barras representan la duración de cada etapa y permiten identificar actividades simultáneas.</p>
-    <div class="facts">${s.emb ? `<span>EMB fabricación: <b>${s.emb}</b></span>` : ""}${s.dias ? `<span>Días de ejecución: <b>${s.dias}</b></span>` : ""}${s.habiles ? `<span>Días hábiles: <b>${s.habiles}</b></span>` : ""}<span>Estado: <b>${s.inst ? "Instalado" : "Pendiente"}</b></span></div>
+    <div class="facts">${s.emb ? `<span>Embarcadero Número: <b>${s.emb}</b></span>` : ""}${s.dias ? `<span>Días de ejecución: <b>${s.dias}</b></span>` : ""}${s.habiles ? `<span>Días hábiles: <b>${s.habiles}</b></span>` : ""}<span>Estado: <b>${s.inst ? "Instalado" : "Pendiente"}</b></span></div>
   </section>`;
 }
 
