@@ -97,12 +97,17 @@ label.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .detail h3{margin:0;font-size:20px;font-weight:600}
 .detail header p{margin:2px 0 0;color:var(--muted);font-size:15px}
 .x{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:#374151;padding:4px 8px}
+.month-axis{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:end;margin-top:14px}
+.month-axis-label{font-size:11px;color:var(--muted);padding-bottom:5px}
+.month-track{position:relative;height:22px;border-bottom:1px solid var(--line);overflow:hidden}
+.month-segment{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 2px;border-left:1px solid var(--line);white-space:nowrap;font-size:11px;color:var(--muted)}
 .stage{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;margin:14px 0}
 .stage .s b{display:block;font-size:12px;font-weight:600}
 .stage .s small{font-size:11px;color:#374151}
 .stage .s small.bad{color:#b91c1c}
 .track{position:relative;height:18px;background:var(--soft);border-radius:9px}
 .track i{position:absolute;top:0;bottom:0;border-radius:9px;min-width:8px}
+.month-mark{position:absolute;z-index:1;top:-3px;bottom:-3px;width:1px;background:var(--line);pointer-events:none}
 .note{color:#374151;font-size:15px;margin:10px 0 0}
 .facts{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0 0;color:#374151;font-size:14px}
 .facts b{font-weight:600}
@@ -126,7 +131,7 @@ details.av ul{margin:8px 0 0;padding-left:18px}
   .axis,.row{grid-template-columns:130px 1fr 24px}
   .axis-year{margin-left:130px;margin-right:24px}
   .gl{left:130px;right:24px}
-  .stage{grid-template-columns:110px 1fr}
+  .stage,.month-axis{grid-template-columns:110px 1fr}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -302,17 +307,35 @@ function renderDetalle() {
   if (!s) { $("detail").innerHTML = ""; return; }
   const [a, b] = rangoSitio(s), span = b + DAY - a;
   const pos = t => (t - a) / span * 100;
+  const meses = [];
+  let mes = Date.UTC(new Date(a).getUTCFullYear(), new Date(a).getUTCMonth(), 1);
+  while (mes < b + DAY) {
+    const d = new Date(mes), siguiente = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1);
+    const inicio = Math.max(a, mes), fin = Math.min(b + DAY, siguiente);
+    const nombreMes = MESES[d.getUTCMonth()];
+    const etiqueta = `${nombreMes}${mes === Date.UTC(new Date(a).getUTCFullYear(), new Date(a).getUTCMonth(), 1) || d.getUTCMonth() === 0 ? " " + d.getUTCFullYear() : ""}`;
+    meses.push({
+      left: pos(inicio), width: (fin - inicio) / span * 100,
+      label: etiqueta, title: `${MESES_L[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+    });
+    mes = siguiente;
+  }
+  const ejeMeses = `<div class="month-axis"><div class="month-axis-label">Mes</div><div class="month-track">${
+    meses.map(m => `<span class="month-segment" style="left:${m.left}%;width:${m.width}%" title="${m.title}">${m.label}</span>`).join("")
+  }</div></div>`;
+  const marcasMes = meses.slice(1).map(m => `<i class="month-mark" style="left:${m.left}%"></i>`).join("");
   const filas = s.etapas.map(e => {
     const col = ACT.find(x => x.k === e.k).c;
     const v = [e.aok ? e.a : null, e.bok ? e.b : null].filter(Boolean).map(T);
     const bad = [!e.aok && e.a ? e.a : null, !e.bok && e.b ? e.b : null].filter(Boolean);
     const txt = v.length ? (v[0] === v[v.length-1] ? dm(v[0]) : dm(Math.min(...v)) + " – " + dm(Math.max(...v))) : "sin fecha válida";
     const barra = v.length ? (() => { const x0 = Math.min(...v), x1 = Math.max(...v); return `<i style="left:${pos(x0)}%;width:${Math.max(pos(x1 + DAY) - pos(x0), 2)}%;background:${col}"></i>`; })() : "";
-    return `<div class="stage"><div class="s"><b>${e.n}</b><small>${txt}</small>${bad.length ? `<small class="bad"> · ⚠ revisar ${bad.map(x => x.split("-").reverse().join("/")).join(", ")}</small>` : ""}</div><div class="track">${barra}</div></div>`;
+    return `<div class="stage"><div class="s"><b>${e.n}</b><small>${txt}</small>${bad.length ? `<small class="bad"> · ⚠ revisar ${bad.map(x => x.split("-").reverse().join("/")).join(", ")}</small>` : ""}</div><div class="track">${marcasMes}${barra}</div></div>`;
   }).join("");
   const sub = [s.dep, s.cod ? "DIVIPOLA " + s.cod : "", s.sup ? "Supervisor UIS: " + s.sup : ""].filter(Boolean).join(" · ");
   $("detail").innerHTML = `<section class="detail" aria-label="Detalle de ${esc(s.mun)}">
     <header><div><h3>${esc(s.mun)}</h3><p>Línea de tiempo detallada · ${esc(sub)}</p></div><button class="x" type="button" aria-label="Cerrar detalle" id="xDet">×</button></header>
+    ${ejeMeses}
     ${filas}
     <p class="note">Las barras representan la duración de cada etapa y permiten identificar actividades simultáneas.</p>
     <div class="facts">${s.emb ? `<span>Embarcadero Número: <b>${s.emb}</b></span>` : ""}${s.dias ? `<span>Días de ejecución: <b>${s.dias}</b></span>` : ""}${s.habiles ? `<span>Días hábiles: <b>${s.habiles}</b></span>` : ""}<span>Estado: <b>${s.inst ? "Instalado" : "Pendiente"}</b></span></div>
