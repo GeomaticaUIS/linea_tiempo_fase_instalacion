@@ -148,10 +148,15 @@ h1 {
   margin: 0;
   max-width: 62ch;
 }
-.table-toolbar {
+.sticky-page-head {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  background: var(--bg);
+}
+.table-toolbar {
   padding-top: 1px;
   background: var(--bg);
 }
@@ -482,21 +487,21 @@ footer.note {
 </head>
 <body>
 <div class="wrap">
-  <div class="brand-band">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
-    <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span></div>
-  </div>
+  <div class="sticky-page-head" id="sticky-page-head">
+    <div class="brand-band">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
+      <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span></div>
+    </div>
   <header class="page-head">
     <h1>Tablero de soportes documentales fase instalación</h1>
+    <nav class="page-nav" aria-label="Secciones del proyecto">
+      <a href="index.html" aria-current="page">Soportes documentales</a>
+      <a href="instalacion.html">Cronograma de instalación</a>
+    </nav>
     <p class="subtitle">Puede filtrar los siguientes documentos:</p>
     <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
   </header>
 
-  <nav class="page-nav" aria-label="Secciones del proyecto">
-    <a href="index.html" aria-current="page">Soportes documentales</a>
-    <a href="instalacion.html">Cronograma de instalación</a>
-  </nav>
- 
   <div class="table-toolbar">
     <div class="panel filters">
       <div class="field">
@@ -540,6 +545,7 @@ footer.note {
       <p><span>Municipios pendientes sin algún soporte cargado</span><strong id="resumen-municipios-pendientes">0</strong></p>
     </div>
   </div>
+  </div>
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
     <div class="pending-header">
@@ -582,7 +588,7 @@ const elConteo = document.getElementById('conteo');
 const elPanelPendientes = document.getElementById('panel-pendientes');
 const elListadoPendientes = document.getElementById('listado-pendientes');
 const elEmpty = document.getElementById('empty-state');
-const elTableToolbar = document.querySelector('.table-toolbar');
+const elStickyPageHead = document.getElementById('sticky-page-head');
 const elTableScroll = document.querySelector('.table-scroll');
 const elTable = elTableScroll.querySelector('table');
 const elStickyTableHead = document.getElementById('sticky-table-head');
@@ -592,17 +598,17 @@ elStickyTableHead.appendChild(stickyHeaderTable);
 
 let stickyHeadUpdatePending = false;
 function updateStickyTableHead() {
-  const toolbarRect = elTableToolbar.getBoundingClientRect();
+  const stickyHeadRect = elStickyPageHead.getBoundingClientRect();
   const scrollRect = elTableScroll.getBoundingClientRect();
   const headerHeight = elTable.querySelector('thead').getBoundingClientRect().height;
-  const shouldShow = scrollRect.top < toolbarRect.bottom
-    && scrollRect.bottom > toolbarRect.bottom + headerHeight;
+  const shouldShow = scrollRect.top < stickyHeadRect.bottom
+    && scrollRect.bottom > stickyHeadRect.bottom + headerHeight;
 
   elStickyTableHead.classList.toggle('is-visible', shouldShow);
   if (!shouldShow) return;
 
   const borderLeft = parseFloat(getComputedStyle(elTableScroll).borderLeftWidth) || 0;
-  elStickyTableHead.style.top = `${toolbarRect.bottom}px`;
+  elStickyTableHead.style.top = `${stickyHeadRect.bottom}px`;
   elStickyTableHead.style.left = `${scrollRect.left + borderLeft}px`;
   elStickyTableHead.style.width = `${elTableScroll.clientWidth}px`;
   elStickyTableHead.style.height = `${headerHeight}px`;
