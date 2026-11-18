@@ -148,16 +148,10 @@ h1 {
   margin: 0;
   max-width: 62ch;
 }
-.sticky-page-head {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--bg);
-}
 .table-toolbar {
   position: sticky;
-  top: var(--sticky-page-head-height, 0px);
-  z-index: 19;
+  top: 0;
+  z-index: 10;
   padding-top: 1px;
   background: var(--bg);
 }
@@ -480,9 +474,6 @@ footer.note {
 }
 @media (max-width: 640px) {
   .wrap { padding: 18px 14px 40px; }
-  .table-toolbar {
-    position: static;
-  }
   table { min-width: 720px; }
   .installation-summary { grid-template-columns: 1fr; }
   .installation-summary p + p { border-left: 0; border-top: 1px solid var(--line); }
@@ -491,26 +482,23 @@ footer.note {
 </head>
 <body>
 <div class="wrap">
-  <div class="sticky-page-head" id="sticky-page-head">
-    
+  <div class="brand-band">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
+    <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span>
+    <p class="subtitle">Puede filtrar los siguientes documentos:</p>
+    <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
+    </div>
+  </div>
   <header class="page-head">
     <h1>Tablero de soportes documentales fase instalación</h1>
-    <nav class="page-nav" aria-label="Secciones del proyecto">
-      <a href="index.html" aria-current="page">Soportes documentales</a>
-      <a href="instalacion.html">Cronograma de instalación</a>
-    </nav>
-
-  </header>
-  </div>
-
-  <div class="brand-band">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
-      <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span>
-      <p class="subtitle">Puede filtrar los siguientes documentos:</p>
-      <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
-      </div>
-    </div>
     
+  </header>
+
+  <nav class="page-nav" aria-label="Secciones del proyecto">
+    <a href="index.html" aria-current="page">Soportes documentales</a>
+    <a href="instalacion.html">Cronograma de instalación</a>
+  </nav>
+ 
   <div class="table-toolbar">
     <div class="panel filters">
       <div class="field">
@@ -577,7 +565,7 @@ footer.note {
   </div>
   <div class="sticky-table-head" id="sticky-table-head" aria-hidden="true"></div>
  
-  <footer class="note">Generado automáticamente el· 2026-11-10 22:04</footer>
+  <footer class="note">Generado automáticamente el· 2026-11-18 12:45</footer>
 </div>
  
 <script>
@@ -596,7 +584,6 @@ const elConteo = document.getElementById('conteo');
 const elPanelPendientes = document.getElementById('panel-pendientes');
 const elListadoPendientes = document.getElementById('listado-pendientes');
 const elEmpty = document.getElementById('empty-state');
-const elStickyPageHead = document.getElementById('sticky-page-head');
 const elTableToolbar = document.querySelector('.table-toolbar');
 const elTableScroll = document.querySelector('.table-scroll');
 const elTable = elTableScroll.querySelector('table');
@@ -607,19 +594,17 @@ elStickyTableHead.appendChild(stickyHeaderTable);
 
 let stickyHeadUpdatePending = false;
 function updateStickyTableHead() {
-  const stickyHeadRect = elStickyPageHead.getBoundingClientRect();
   const toolbarRect = elTableToolbar.getBoundingClientRect();
-  const stickyTop = Math.max(stickyHeadRect.bottom, toolbarRect.bottom);
   const scrollRect = elTableScroll.getBoundingClientRect();
   const headerHeight = elTable.querySelector('thead').getBoundingClientRect().height;
-  const shouldShow = scrollRect.top < stickyTop
-    && scrollRect.bottom > stickyTop + headerHeight;
+  const shouldShow = scrollRect.top < toolbarRect.bottom
+    && scrollRect.bottom > toolbarRect.bottom + headerHeight;
 
   elStickyTableHead.classList.toggle('is-visible', shouldShow);
   if (!shouldShow) return;
 
   const borderLeft = parseFloat(getComputedStyle(elTableScroll).borderLeftWidth) || 0;
-  elStickyTableHead.style.top = `${stickyTop}px`;
+  elStickyTableHead.style.top = `${toolbarRect.bottom}px`;
   elStickyTableHead.style.left = `${scrollRect.left + borderLeft}px`;
   elStickyTableHead.style.width = `${elTableScroll.clientWidth}px`;
   elStickyTableHead.style.height = `${headerHeight}px`;
@@ -628,10 +613,6 @@ function updateStickyTableHead() {
 }
 
 function scheduleStickyTableHeadUpdate() {
-  elTableToolbar.style.setProperty(
-    '--sticky-page-head-height',
-    `${elStickyPageHead.getBoundingClientRect().height}px`
-  );
   if (stickyHeadUpdatePending) return;
   stickyHeadUpdatePending = true;
   requestAnimationFrame(() => {
@@ -643,7 +624,6 @@ function scheduleStickyTableHeadUpdate() {
 window.addEventListener('scroll', scheduleStickyTableHeadUpdate, {passive: true});
 window.addEventListener('resize', scheduleStickyTableHeadUpdate);
 elTableScroll.addEventListener('scroll', scheduleStickyTableHeadUpdate, {passive: true});
-scheduleStickyTableHeadUpdate();
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
 const documentosCargados = DATA.reduce((total, r) => (
