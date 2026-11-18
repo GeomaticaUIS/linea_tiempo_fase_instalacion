@@ -152,11 +152,12 @@ h1 {
   position: sticky;
   top: 0;
   z-index: 20;
-  max-height: calc(100vh - 16px);
-  overflow-y: auto;
   background: var(--bg);
 }
 .table-toolbar {
+  position: sticky;
+  top: var(--sticky-page-head-height, 0px);
+  z-index: 19;
   padding-top: 1px;
   background: var(--bg);
 }
@@ -479,6 +480,9 @@ footer.note {
 }
 @media (max-width: 640px) {
   .wrap { padding: 18px 14px 40px; }
+  .table-toolbar {
+    position: static;
+  }
   table { min-width: 720px; }
   .installation-summary { grid-template-columns: 1fr; }
   .installation-summary p + p { border-left: 0; border-top: 1px solid var(--line); }
@@ -495,13 +499,16 @@ footer.note {
       <a href="index.html" aria-current="page">Soportes documentales</a>
       <a href="instalacion.html">Cronograma de instalación</a>
     </nav>
-    <p class="subtitle">Puede filtrar los siguientes documentos:</p>
-    <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
+
   </header>
+  </div>
 
   <div class="brand-band">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
-      <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span></div>
+      <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span>
+      <p class="subtitle">Puede filtrar los siguientes documentos:</p>
+      <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
+      </div>
     </div>
     
   <div class="table-toolbar">
@@ -547,7 +554,6 @@ footer.note {
       <p><span>Municipios pendientes sin algún soporte cargado</span><strong id="resumen-municipios-pendientes">0</strong></p>
     </div>
   </div>
-  </div>
 
   <div class="pending-panel" id="panel-pendientes" style="display:none;">
     <div class="pending-header">
@@ -591,6 +597,7 @@ const elPanelPendientes = document.getElementById('panel-pendientes');
 const elListadoPendientes = document.getElementById('listado-pendientes');
 const elEmpty = document.getElementById('empty-state');
 const elStickyPageHead = document.getElementById('sticky-page-head');
+const elTableToolbar = document.querySelector('.table-toolbar');
 const elTableScroll = document.querySelector('.table-scroll');
 const elTable = elTableScroll.querySelector('table');
 const elStickyTableHead = document.getElementById('sticky-table-head');
@@ -601,16 +608,18 @@ elStickyTableHead.appendChild(stickyHeaderTable);
 let stickyHeadUpdatePending = false;
 function updateStickyTableHead() {
   const stickyHeadRect = elStickyPageHead.getBoundingClientRect();
+  const toolbarRect = elTableToolbar.getBoundingClientRect();
+  const stickyTop = Math.max(stickyHeadRect.bottom, toolbarRect.bottom);
   const scrollRect = elTableScroll.getBoundingClientRect();
   const headerHeight = elTable.querySelector('thead').getBoundingClientRect().height;
-  const shouldShow = scrollRect.top < stickyHeadRect.bottom
-    && scrollRect.bottom > stickyHeadRect.bottom + headerHeight;
+  const shouldShow = scrollRect.top < stickyTop
+    && scrollRect.bottom > stickyTop + headerHeight;
 
   elStickyTableHead.classList.toggle('is-visible', shouldShow);
   if (!shouldShow) return;
 
   const borderLeft = parseFloat(getComputedStyle(elTableScroll).borderLeftWidth) || 0;
-  elStickyTableHead.style.top = `${stickyHeadRect.bottom}px`;
+  elStickyTableHead.style.top = `${stickyTop}px`;
   elStickyTableHead.style.left = `${scrollRect.left + borderLeft}px`;
   elStickyTableHead.style.width = `${elTableScroll.clientWidth}px`;
   elStickyTableHead.style.height = `${headerHeight}px`;
@@ -619,6 +628,10 @@ function updateStickyTableHead() {
 }
 
 function scheduleStickyTableHeadUpdate() {
+  elTableToolbar.style.setProperty(
+    '--sticky-page-head-height',
+    `${elStickyPageHead.getBoundingClientRect().height}px`
+  );
   if (stickyHeadUpdatePending) return;
   stickyHeadUpdatePending = true;
   requestAnimationFrame(() => {
@@ -630,6 +643,7 @@ function scheduleStickyTableHeadUpdate() {
 window.addEventListener('scroll', scheduleStickyTableHeadUpdate, {passive: true});
 window.addEventListener('resize', scheduleStickyTableHeadUpdate);
 elTableScroll.addEventListener('scroll', scheduleStickyTableHeadUpdate, {passive: true});
+scheduleStickyTableHeadUpdate();
 
 const sitiosInstalados = new Set(DATA.filter(r => r.instalado).map(r => r.fila_excel));
 const documentosCargados = DATA.reduce((total, r) => (

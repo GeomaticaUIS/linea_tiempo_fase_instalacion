@@ -667,12 +667,14 @@ footer.note {
 <div class="wrap">
   <div class="brand-band">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-4v17"/><path d="M12 9l8 3v9"/><path d="M2 21h20"/><path d="M8 11v.01M8 15v.01"/></svg>
-    <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span></div>
+    <div><strong>INTERVENTORÍA</strong><span>Proyecto FONTUR · Fase de instalación</span>
+    <p class="subtitle">Puede filtrar los siguientes documentos:</p>
+    <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
+    </div>
   </div>
   <header class="page-head">
     <h1>Tablero de soportes documentales fase instalación</h1>
-    <p class="subtitle">Puede filtrar los siguientes documentos:</p>
-    <p class="subtitle">Cronograma, Pólizas, Bitácoras, Seguimiento Armado, Control Calidad, Actas</p>
+    
   </header>
 
   <nav class="page-nav" aria-label="Secciones del proyecto">
