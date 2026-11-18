@@ -179,7 +179,7 @@ h2.sec{font-size:22px;margin:0 0 4px;font-weight:600}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
 .kpi b{display:block;font-size:28px;font-weight:600;line-height:1.1}
 .kpi small{color:var(--muted);font-size:12px}
-.filters{display:grid;grid-template-columns:1fr 1fr;gap:12px 12px;margin-bottom:22px}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
 label.f{display:block;color:var(--muted);font-size:15px;font-weight:500}
 label.f select,label.f input{display:block;width:100%;margin-top:6px;border:1px solid var(--line);border-radius:999px;padding:11px 16px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg-panel);appearance:none}
 label.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
@@ -248,6 +248,9 @@ td.m{font-weight:600}
 details.av{margin-top:10px;font-size:13px;color:#7f1d1d;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:8px 12px}
 details.av summary{cursor:pointer;font-weight:600}
 details.av ul{margin:8px 0 0;padding-left:18px}
+@media (max-width:800px){
+  .filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media (max-width:640px){
   .wrap{padding:18px 14px 40px}
   .body{padding:14px}
@@ -287,10 +290,7 @@ details.av ul{margin:8px 0 0;padding-left:18px}
       </div>
 
       <div class="head">
-        <div>
-          <h2 class="sec" style="font-size:20px" id="tTitulo">Cronograma general</h2>
-          <p class="sub" id="tSub" style="margin:0"></p>
-        </div>
+       
         <div class="toggle" role="group" aria-label="Tipo de vista">
           <button type="button" id="mGraf" class="on">Gráfico</button>
           <button type="button" id="mTab">Tabla de fechas</button>
@@ -474,8 +474,6 @@ function render() {
     c.setAttribute("aria-pressed", String(activo));
   });
   const act = ACT.find(a => a.k === st.act);
-  $("tTitulo").textContent = "Cronograma general";
-  $("tSub").textContent = (act ? act.n + " · " : "") + (st.mes ? MESES_L[st.mes-1] + " " : "Año ") + st.anio;
   $("legend").innerHTML = act
     ? `<span><i style="background:${act.c}"></i>${act.n}</span>`
     : `<span><i style="background:var(--ok)"></i>Instalado</span><span><i style="background:var(--pend)"></i>Pendiente</span>`;

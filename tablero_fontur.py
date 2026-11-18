@@ -454,7 +454,7 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
 .meta-row strong { color: var(--ink); }
 .installation-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0 0 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -466,6 +466,7 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
   padding: 12px 16px;
 }
 .installation-summary p + p { border-left: 1px solid var(--line); }
+.installation-summary p:nth-child(3) { display: none; }
 .installation-summary span {
   display: block;
   color: var(--ink-soft);
@@ -484,6 +485,7 @@ button.reset:hover { color: var(--ink); border-color: var(--ink-faint); }
   margin: 0 0 16px;
   padding: 14px 16px;
 }
+#panel-pendientes { display: none !important; }
 .pending-header {
   display: flex;
   justify-content: space-between;
@@ -657,6 +659,7 @@ footer.note {
 }
 @media (max-width: 640px) {
   .wrap { padding: 18px 14px 40px; }
+  .table-toolbar { position: static; }
   table { min-width: 720px; }
   .installation-summary { grid-template-columns: 1fr; }
   .installation-summary p + p { border-left: 0; border-top: 1px solid var(--line); }
@@ -777,6 +780,10 @@ elStickyTableHead.appendChild(stickyHeaderTable);
 
 let stickyHeadUpdatePending = false;
 function updateStickyTableHead() {
+  if (window.matchMedia('(max-width: 640px)').matches) {
+    elStickyTableHead.classList.remove('is-visible');
+    return;
+  }
   const toolbarRect = elTableToolbar.getBoundingClientRect();
   const scrollRect = elTableScroll.getBoundingClientRect();
   const headerHeight = elTable.querySelector('thead').getBoundingClientRect().height;
