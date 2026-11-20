@@ -60,6 +60,7 @@ COLUMNAS_SOPORTES = [
     (25, "Autorización Ocupación Espacio Público"),
     (26, "Actas de Vecindad"),
     (27, "Bitácoras"),
+    (28, "Certificaciones Calidad Materiales"),
     (29, "Control Calidad Interventoría"),
     (30, "Seguimiento Armado EMB"),
     (31, "Capacitación EMB"),
