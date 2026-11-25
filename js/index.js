@@ -249,6 +249,7 @@ function aplicarFiltros() {
     if (estadoInstalacion === 'instalado' && !r.instalado) return false;
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
     if (sitiosDocumentales && !sitiosDocumentales.has(`${r.municipio}||${r.departamento}`)) return false;
+    if (elDocumental.value === 'en_proceso' && r.estado !== 'pendiente' && r.estado !== 'sin_dato') return false;
     if (texto) {
       const hay = (r.tipo + ' ' + r.ruta + ' ' + (r.archivos || []).join(' ')).toLowerCase();
       if (!hay.includes(texto)) return false;
