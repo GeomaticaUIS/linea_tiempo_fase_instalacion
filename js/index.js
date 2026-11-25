@@ -5,6 +5,7 @@ const elDepartamento = document.getElementById('f-departamento');
 const elOpcionesMunicipio = document.getElementById('opciones-municipio');
 const elOpcionesDepartamento = document.getElementById('opciones-departamento');
 const elInstalado = document.getElementById('f-instalado');
+const elDocumental = document.getElementById('f-documental');
 const elBuscar = document.getElementById('f-buscar');
 const elOpcionesTipo = document.getElementById('opciones-tipo');
 const elAlternarTipos = document.getElementById('btn-tipos');
@@ -78,14 +79,34 @@ function poblarOpciones(el, valores) {
   }
 }
 
+function sitiosSegunEstadoDocumental(estadoDocumental) {
+  if (!estadoDocumental) return null;
+
+  const pendientesPorSitio = new Map();
+  for (const r of DATA) {
+    if (!r.instalado) continue;
+    const clave = `${r.municipio}||${r.departamento}`;
+    if (!pendientesPorSitio.has(clave)) pendientesPorSitio.set(clave, false);
+    if (r.estado === 'pendiente' || r.estado === 'sin_dato') {
+      pendientesPorSitio.set(clave, true);
+    }
+  }
+
+  return new Set([...pendientesPorSitio]
+    .filter(([, tienePendientes]) => estadoDocumental === 'en_proceso' ? tienePendientes : !tienePendientes)
+    .map(([clave]) => clave));
+}
+
 function opcionesSegunFiltros(campo) {
   const estado = elInstalado.value;
+  const sitiosDocumentales = sitiosSegunEstadoDocumental(elDocumental.value);
   const municipioActual = elMunicipio.value.trim().toLocaleLowerCase('es');
   const departamentoActual = elDepartamento.value.trim().toLocaleLowerCase('es');
 
   const filas = DATA.filter(r => {
     if (estado === 'instalado' && !r.instalado) return false;
     if (estado === 'no_instalado' && r.instalado) return false;
+    if (sitiosDocumentales && !sitiosDocumentales.has(`${r.municipio}||${r.departamento}`)) return false;
     if (campo !== 'municipio' && municipioActual && !r.municipio.toLocaleLowerCase('es').includes(municipioActual)) return false;
     if (campo !== 'departamento' && departamentoActual && !r.departamento.toLocaleLowerCase('es').includes(departamentoActual)) return false;
     return true;
@@ -219,6 +240,7 @@ function aplicarFiltros() {
   const municipio = elMunicipio.value;
   const departamento = elDepartamento.value;
   const estadoInstalacion = elInstalado.value;
+  const sitiosDocumentales = sitiosSegunEstadoDocumental(elDocumental.value);
   const texto = elBuscar.value.trim().toLowerCase();
 
   let filtradas = DATA.filter(r => {
@@ -226,6 +248,7 @@ function aplicarFiltros() {
     if (departamento && !r.departamento.toLocaleLowerCase('es').includes(departamento.toLocaleLowerCase('es'))) return false;
     if (estadoInstalacion === 'instalado' && !r.instalado) return false;
     if (estadoInstalacion === 'no_instalado' && r.instalado) return false;
+    if (sitiosDocumentales && !sitiosDocumentales.has(`${r.municipio}||${r.departamento}`)) return false;
     if (texto) {
       const hay = (r.tipo + ' ' + r.ruta + ' ' + (r.archivos || []).join(' ')).toLowerCase();
       if (!hay.includes(texto)) return false;
@@ -374,6 +397,11 @@ elInstalado.addEventListener('change', () => {
   syncSelects();
   aplicarFiltros();
 });
+elDocumental.addEventListener('change', () => {
+  limpiarSeleccionPendiente();
+  syncSelects();
+  aplicarFiltros();
+});
 elBuscar.addEventListener('focus', abrirOpcionesTipo);
 elBuscar.addEventListener('input', () => {
   limpiarSeleccionPendiente();
@@ -416,6 +444,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   elMunicipio.value = '';
   elDepartamento.value = '';
   elInstalado.value = '';
+  elDocumental.value = '';
   elBuscar.value = '';
   syncSelects();
   aplicarFiltros();
