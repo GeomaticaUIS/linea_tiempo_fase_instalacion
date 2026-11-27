@@ -15,7 +15,7 @@ import openpyxl
 
 HOJA = "Reporte semanal"
 FILA_ENCABEZADO = 9
-TOLERANCIA_DIAS = 30  # una fecha de obra/transporte/armado a más de 30 días de la instalación se marca como inconsistente
+TOLERANCIA_DIAS = 30  # una fecha de obra/armado a más de 30 días de la instalación se marca como inconsistente
 
 # columna del Excel -> clave interna
 COLS = {
@@ -77,7 +77,7 @@ def leer(xlsx):
             v = f[clave]
             if not v:
                 return False
-            if clave in ("obra_a", "obra_b", "tra_a", "tra_b", "arm_a", "arm_b") and refd:
+            if clave in ("obra_a", "obra_b", "arm_a", "arm_b") and refd:
                 return abs((dt.date.fromisoformat(v) - refd).days) <= TOLERANCIA_DIAS
             return True
 
